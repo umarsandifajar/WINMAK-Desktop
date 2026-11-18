@@ -1,4 +1,4 @@
-// Task model for the bar: pinned apps plus running app windows, grouped per
+﻿// Task model for the bar: pinned apps plus running app windows, grouped per
 // application (D13). Lives on the UI thread (WinEvent hooks need its message
 // loop); the bar reads immutable snapshots.
 #pragma once
@@ -51,7 +51,7 @@ struct TaskItem {
 // thread. COM must be initialised on the calling thread.
 // thumbnail: the picture itself (an image file) rather than its icon.
 bool LoadShellImage(const std::wstring& parsingName, int sizePx, IconImage& out, bool thumbnail = false);
-// Atrium's own programs (Atrium.exe, Atrium.Settings.exe): their icon read from the file
+// Atrium's own programs (WINMAK.exe, Atrium.Settings.exe): their icon read from the file
 // itself, not from the shell's icon cache or Explorer's tray snapshot, which keep the icon an
 // earlier build had at the same path. False for any other program.
 bool LoadAtriumIcon(const std::wstring& exePath, int sizePx, IconImage& out);

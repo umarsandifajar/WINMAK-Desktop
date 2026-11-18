@@ -43,7 +43,9 @@ constexpr UINT WM_WIDGET_REMOVE = WM_APP + 1;  // lParam Widget*: removed once i
 constexpr UINT WM_WIDGET_RESTACK = WM_APP + 2; // a burst of window events, one restack
 constexpr UINT WM_WIDGET_PHOTO = WM_APP + 3;   // lParam PhotoRead*: a photo was read
 constexpr UINT WM_WIDGET_WEATHER = WM_APP + 4; // a new forecast (WeatherSource::Latest)
-constexpr UINT WM_WIDGET_BLUETOOTH = WM_APP + 5; // the Bluetooth batteries changed (BluetoothBatteries::Latest)
+constexpr UINT WM_WIDGET_BLUETOOTH = WM_APP + 5;
+constexpr UINT WM_WIDGET_MEDIA = WM_APP + 6;
+constexpr UINT_PTR kMediaAnimTimer = 99; // the Bluetooth batteries changed (BluetoothBatteries::Latest)
 
 DesktopWidgets* g_widgets = nullptr; // the WinEvent hook's way back
 
@@ -54,7 +56,7 @@ struct KindName {
 const KindName kKinds[] = {{WidgetKind::Clock, L"clock"},     {WidgetKind::Calendar, L"calendar"},   {WidgetKind::Battery, L"battery"},
                            {WidgetKind::Digital, L"digital"}, {WidgetKind::System, L"system"},       {WidgetKind::Notes, L"notes"},
                            {WidgetKind::Reminders, L"reminders"}, {WidgetKind::Photos, L"photos"},  {WidgetKind::Weather, L"weather"},
-                           {WidgetKind::Bluetooth, L"bluetooth"}, {WidgetKind::Network, L"network"}};
+                           {WidgetKind::Bluetooth, L"bluetooth"}, {WidgetKind::Network, L"network"}, {WidgetKind::Prayer, L"prayer"}, {WidgetKind::Music, L"music"}, {WidgetKind::Lyrics, L"lyrics"}};
 
 const wchar_t* NameOf(WidgetKind k)
 {
@@ -264,6 +266,8 @@ DesktopWidgets::DesktopWidgets(HINSTANCE instance) : instance_(instance)
     weather_ = std::make_unique<WeatherSource>(host_, WM_WIDGET_WEATHER);
     world_.weather = weather_->Latest(); // the last one, until the first fetch
     bluetooth_ = std::make_unique<BluetoothBatteries>(host_, WM_WIDGET_BLUETOOTH);
+    media_ = std::make_unique<MediaSessionMonitor>(host_, WM_WIDGET_MEDIA);
+    media_->SetActive(true);
     network_ = std::make_unique<NetworkMonitor>();
     world_.network = network_.get();
 }
@@ -326,6 +330,7 @@ void DesktopWidgets::SetEnabled(bool on)
         }
         KillTimer(host_, kTickTimer);
         KillTimer(host_, kSafetyTimer);
+        KillTimer(host_, kMediaAnimTimer);
         weather_->SetActive(false);
         bluetooth_->SetActive(false);
         network_->SetActive(false);
@@ -861,6 +866,7 @@ LRESULT CALLBACK DesktopWidgets::HostProc(HWND h, UINT m, WPARAM w, LPARAM l)
     if (self) {
         switch (m) {
         case WM_TIMER:
+            if (w == kMediaAnimTimer) { if (!self->world_.media.playing) KillTimer(h, kMediaAnimTimer); else for (auto& wd : self->widgets_) if ((wd->kind == WidgetKind::Music || wd->kind == WidgetKind::Lyrics) && wd->surface) wd->surface->Invalidate(); return 0; }
             if (w == kTickTimer) {
                 self->Tick();
             } else if (w == kSafetyTimer) {
@@ -922,6 +928,14 @@ LRESULT CALLBACK DesktopWidgets::HostProc(HWND h, UINT m, WPARAM w, LPARAM l)
             self->world_.weather = self->weather_->Latest();
             for (auto& wd : self->widgets_)
                 if (wd->kind == WidgetKind::Weather && wd->surface)
+                    wd->surface->Invalidate();
+            return 0;
+        case WM_WIDGET_MEDIA:
+            if (self->media_) self->world_.media = self->media_->Latest();
+            if (self->world_.media.playing) SetTimer(h, kMediaAnimTimer, 33, nullptr);
+            else KillTimer(h, kMediaAnimTimer);
+            for (auto& wd : self->widgets_)
+                if ((wd->kind == WidgetKind::Music || wd->kind == WidgetKind::Lyrics) && wd->surface)
                     wd->surface->Invalidate();
             return 0;
         case WM_WIDGET_BLUETOOTH:
@@ -1231,6 +1245,7 @@ void DesktopWidgets::Activate(Widget& w)
     case WidgetKind::Battery:
         open = world_.status.battery ? L"ms-settings:batterysaver" : L"ms-settings:powersleep";
         break;
+    case WidgetKind::Music: { POINT p2; GetCursorPos(&p2); POINT c2 = w.surface->ScreenToContent(p2); float s2 = w.surface->Scale(); float x = float(c2.x) / s2, y = float(c2.y) / s2; for (const auto& h : w.hits) { if (x >= h.rect.left && x <= h.rect.right && y >= h.rect.top && y <= h.rect.bottom) { if (h.id == L"media_playpause" && media_) { media_->TogglePlayPause(); return; } if (h.id == L"media_next" && media_) { media_->Next(); return; } if (h.id == L"media_prev" && media_) { media_->Previous(); return; } if (h.id == L"media_seek" && media_) { double r = std::clamp(double(x - h.rect.left) / std::max(1.0, double(h.rect.right - h.rect.left)), 0.0, 1.0); media_->SeekRatio(r); return; } } } break; }
     case WidgetKind::System:
         open = L"taskmgr.exe";
         break;
@@ -1599,6 +1614,8 @@ void DesktopWidgets::Paint(Widget& w, Canvas& c)
     if (c.panel && material_ != WidgetMaterial::Color)
         c.Fill(bounds, 0, c.theme.panel);
     GetLocalTime(&world_.now);
+    world_.prayer = ComputePrayerSchedule(world_.now);
+    if (media_) world_.media = media_->Latest();
     if (w.kind == WidgetKind::Reminders)
         w.content.scroll = std::clamp(w.content.scroll, 0.f, ReminderScrollMax(w.content, w.size));
     PaintWidget(c, w.kind, w.size, material_, w.content, world_, w.hits);

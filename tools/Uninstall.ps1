@@ -6,7 +6,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
 try {
     $installRoot = [IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\')
-    $coreExe = Join-Path $installRoot 'Atrium.exe'
+    $coreExe = Join-Path $installRoot 'WINMAK.exe'
     $settingsExe = Join-Path $installRoot 'Settings\Atrium.Settings.exe'
     if ($installRoot -eq [IO.Path]::GetPathRoot($installRoot).TrimEnd('\') -or
         !(Test-Path -LiteralPath $coreExe -PathType Leaf) -or
@@ -31,7 +31,7 @@ try {
     if (!$quit.WaitForExit(15000) -or $quit.ExitCode -ne 0) { throw 'Atrium 未能退出，请关闭后重试。' }
 
     # Resolve and check every removal before changing files. Never remove the parent folder's contents.
-    $files = @('Settings', 'Atrium.Core.exe', 'Atrium.exe', 'LICENSE', 'Uninstall.ps1') | ForEach-Object {
+    $files = @('Settings', 'Atrium.Core.exe', 'WINMAK.exe', 'LICENSE', 'Uninstall.ps1') | ForEach-Object {
         $target = [IO.Path]::GetFullPath((Join-Path $installRoot $_))
         if (!$target.StartsWith($installRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
             throw '安装目录无效。'

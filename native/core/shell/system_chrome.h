@@ -1,4 +1,4 @@
-// The parts of Windows' own shell that Atrium can stand in for, hidden on the
+﻿// The parts of Windows' own shell that Atrium can stand in for, hidden on the
 // user's request (both settings are off by default): the system taskbar
 // (Shell_TrayWnd and the secondary ones are hidden while Atrium runs, and set
 // to auto-hide so they leave no gap) and the system's notification banners
@@ -7,7 +7,7 @@
 // them for Atrium's cards). Everything is put back when the setting is turned
 // off or Atrium exits; what was changed is kept in system.json, so a run that
 // did not end cleanly is undone by the next start, or at once by the guard
-// (`Atrium.exe --guard`, main.cpp) that watches a run hiding them.
+// (`WINMAK.exe --guard`, main.cpp) that watches a run hiding them.
 #pragma once
 
 #include <windows.h>

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI;
@@ -19,7 +19,7 @@ namespace Atrium.Settings;
 
 // The design language page, in two layers. First what Atrium looks and moves like, to look at and
 // touch: the two glasses side by side, corners and curvature, type, spacing, colour, the dock and a
-// notification, the curves. Then, behind "查看详细参数", the numbers: every one of them taken from
+// notification, the curves. Then, behind "æŸ¥çœ‹è¯¦ç»†å‚æ\u2022°", the numbers: every one of them taken from
 // the code (the curves use the core's own formulas, native/core/motion.h; the materials are
 // BarSettings' presets; the colours are this app's resources).
 public sealed partial class MainWindow
@@ -73,37 +73,37 @@ public sealed partial class MainWindow
 
     private static Curve[] Curves => new Curve[]
     {
-        new(Loc.T("kPop · Spring"), Loc.T("Duration 0.36 s · Bounce 0.38"), Loc.T("Closed-form spring, damping ratio 0.62; split into 12 Hermite segments for DirectComposition"), Loc.T("Popup appears: scale 0.92 → 1, peaks at 1.0067"), 0.6, t => Motion.Spring(t, 0.36, 0.62)),
-        new(Loc.T("kSmooth · Spring"), Loc.T("Duration 0.48 s · Bounce 0.23"), Loc.T("Closed-form spring, damping ratio 0.77"), Loc.T("Status ring: battery, volume and brightness"), 0.8, t => Motion.Spring(t, 0.48, 0.77)),
-        new(Loc.T("Stack · Critically damped spring"), Loc.T("Duration 0.60 s · Bounce 0"), Loc.T("Closed-form spring, damping ratio 1"), Loc.T("Scrolling through notifications snaps to one"), 1.0, t => Motion.Spring(t, 0.60, 1.0)),
-        new(Loc.T("EaseOut · Cubic ease-out"), "1 − (1 − t)³ · 320 ms", "1 − (1 − t)³", Loc.T("Page changes, fades, staggered lists, ink shifts"), 0.32, t => Motion.EaseOut(t / 0.32)),
-        new(Loc.T("EaseOutBack · Back ease-out"), "s = 1.5 · 260 ms", "1 + (s + 1)(t − 1)³ + s(t − 1)²", Loc.T("Start menu tiles appearing"), 0.26, t => Motion.EaseOutBack(t / 0.26, 1.5)),
-        new(Loc.T("Approach · Exponential approach"), Loc.T("In 20/s · Out 11/s"), Loc.T("1 − e^(−rate · t), continuing from the current value each frame"), Loc.T("Hover and press plates"), 0.3, t => Motion.Approach(t, 20)),
-        new(Loc.T("Launch · One small hop"), Loc.T("sin² · 480 ms · 0.32 × icon height"), Loc.T("sin²(πt / 0.48); no velocity jump at takeoff or landing"), Loc.T("Opening a taskbar app: one hop only"), 0.48, t => Motion.Hop(t, 0.48)),
+        new(Loc.T("kPop \u00B7 Spring"), Loc.T("Duration 0.36 s \u00B7 Bounce 0.38"), Loc.T("Closed-form spring, damping ratio 0.62; split into 12 Hermite segments for DirectComposition"), Loc.T("Popup appears: scale 0.92 â†’ 1, peaks at 1.0067"), 0.6, t => Motion.Spring(t, 0.36, 0.62)),
+        new(Loc.T("kSmooth \u00B7 Spring"), Loc.T("Duration 0.48 s \u00B7 Bounce 0.23"), Loc.T("Closed-form spring, damping ratio 0.77"), Loc.T("Status ring: battery, volume and brightness"), 0.8, t => Motion.Spring(t, 0.48, 0.77)),
+        new(Loc.T("Stack \u00B7 Critically damped spring"), Loc.T("Duration 0.60 s \u00B7 Bounce 0"), Loc.T("Closed-form spring, damping ratio 1"), Loc.T("Scrolling through notifications snaps to one"), 1.0, t => Motion.Spring(t, 0.60, 1.0)),
+        new(Loc.T("EaseOut \u00B7 Cubic ease-out"), "1 âˆ’ (1 âˆ’ t)³ \u00B7 320 ms", "1 âˆ’ (1 âˆ’ t)³", Loc.T("Page changes, fades, staggered lists, ink shifts"), 0.32, t => Motion.EaseOut(t / 0.32)),
+        new(Loc.T("EaseOutBack \u00B7 Back ease-out"), "s = 1.5 \u00B7 260 ms", "1 + (s + 1)(t âˆ’ 1)³ + s(t âˆ’ 1)²", Loc.T("Start menu tiles appearing"), 0.26, t => Motion.EaseOutBack(t / 0.26, 1.5)),
+        new(Loc.T("Approach \u00B7 Exponential approach"), Loc.T("In 20/s \u00B7 Out 11/s"), Loc.T("1 âˆ’ e^(âˆ’rate \u00B7 t), continuing from the current value each frame"), Loc.T("Hover and press plates"), 0.3, t => Motion.Approach(t, 20)),
+        new(Loc.T("Launch \u00B7 One small hop"), Loc.T("sin² \u00B7 480 ms \u00B7 0.32 Ã\u2014 icon height"), Loc.T("sin²(Ï€t / 0.48); no velocity jump at takeoff or landing"), Loc.T("Opening a taskbar app: one hop only"), 0.48, t => Motion.Hop(t, 0.48)),
     };
 
     // The type ramp (DESIGN.md §1.2): name, size, MiSans file, its weight, macOS counterpart, where.
     private static (string Name, double Size, string Font, string Weight, string Mac, string Use)[] TypeRamp =>
         new (string Name, double Size, string Font, string Weight, string Mac, string Use)[]
     {
-        ("Large Title", 30, "TitleFont", "Semibold 520", "Large Title · 26", Loc.T("Page titles, product name")),
-        ("Title", 20, "TitleFont", "Semibold 520", "Title 1 · 22", Loc.T("Empty-state titles, calendar month")),
-        ("Value", 15, "EmphasisFont", "Demibold 450", "—", Loc.T("Slider values (tabular figures)")),
-        ("Row", 15, "TextFont", "Medium 380", "Body · 13", Loc.T("Settings row titles")),
-        ("Body", 13.5, "TextFont", "Medium 380", "Body · 13", Loc.T("Panel body, notification content")),
-        ("Section", 13, "EmphasisFont", "Demibold 450", "—", Loc.T("Group headings")),
-        ("Note", 13, "TextFont", "Medium 380", "Callout · 12", Loc.T("Notes under a row")),
-        ("Footnote", 12, "TextFont", "Medium 380", "Footnote · 10", Loc.T("Footnotes; glass rises in Demibold")),
+        ("Large Title", 30, "TitleFont", "Semibold 520", "Large Title \u00B7 26", Loc.T("Page titles, product name")),
+        ("Title", 20, "TitleFont", "Semibold 520", "Title 1 \u00B7 22", Loc.T("Empty-state titles, calendar month")),
+        ("Value", 15, "EmphasisFont", "Demibold 450", "â€”", Loc.T("Slider values (tabular figures)")),
+        ("Row", 15, "TextFont", "Medium 380", "Body \u00B7 13", Loc.T("Settings row titles")),
+        ("Body", 13.5, "TextFont", "Medium 380", "Body \u00B7 13", Loc.T("Panel body, notification content")),
+        ("Section", 13, "EmphasisFont", "Demibold 450", "â€”", Loc.T("Group headings")),
+        ("Note", 13, "TextFont", "Medium 380", "Callout \u00B7 12", Loc.T("Notes under a row")),
+        ("Footnote", 12, "TextFont", "Medium 380", "Footnote \u00B7 10", Loc.T("Footnotes; glass rises in Demibold")),
     };
 
     // Logical width from, typical screens, bar height, icon, bottom margin, magnification.
     private static (double From, string Screens, int Height, int Icon, int Margin, double Magnify)[] SizeClasses =>
         new (double From, string Screens, int Height, int Icon, int Margin, double Magnify)[]
     {
-        (0, Loc.T("1366×768 @100%, 1920×1080 @150%"), 52, 26, 8, 1.5),
-        (1280, Loc.T("1920×1080 @125%, 2560×1600 @175%, 3200×2000 @200%"), 60, 30, 10, 1.7),
-        (1680, Loc.T("1920×1080 @100%, 2560×1440 @125%"), 64, 32, 12, 1.7),
-        (2400, Loc.T("2560×1440 @100%, 3840×2160 @150%"), 68, 34, 14, 1.6),
+        (0, Loc.T("1366Ã\u2014768 @100%, 1920Ã\u20141080 @150%"), 52, 26, 8, 1.5),
+        (1280, Loc.T("1920Ã\u20141080 @125%, 2560Ã\u20141600 @175%, 3200Ã\u20142000 @200%"), 60, 30, 10, 1.7),
+        (1680, Loc.T("1920Ã\u20141080 @100%, 2560Ã\u20141440 @125%"), 64, 32, 12, 1.7),
+        (2400, Loc.T("2560Ã\u20141440 @100%, 3840Ã\u20142160 @150%"), 68, 34, 14, 1.6),
     };
 
     // The spacing scale (DESIGN.md §4.1) and the corner ladder (§2.1).
@@ -119,10 +119,10 @@ public sealed partial class MainWindow
         (Loc.T("Bar"), Loc.T("cornerRadius, default 30"), Loc.T("At most half the bar height: a capsule by default")),
         (Loc.T("Popup panel"), Loc.T("Same as the bar, 8 to height / 2"), Loc.T("Popup and bar share one material and one shape")),
         (Loc.T("Modules inside a panel"), Loc.T("min(panel radius, 22)"), Loc.T("A very round panel does not turn its modules into capsules")),
-        (Loc.T("Tray icon plate"), "clamp(R − m − 2, 6, 12)", Loc.T("Concentric: outer radius minus the inset")),
+        (Loc.T("Tray icon plate"), "clamp(R âˆ’ m âˆ’ 2, 6, 12)", Loc.T("Concentric: outer radius minus the inset")),
         (Loc.T("Desktop widget"), Loc.T("22 (cell 164)"), Loc.T("About 13% of the side, as macOS widgets")),
         (Loc.T("Capsule control"), Loc.T("Height / 2"), Loc.T("G3 continuous ends; round knobs stay circular")),
-        (Loc.T("Hover and press plates"), "8–12", Loc.T("At most the container radius minus the inset")),
+        (Loc.T("Hover and press plates"), "8â€“12", Loc.T("At most the container radius minus the inset")),
     };
 
     private bool _designBuilt;
@@ -201,7 +201,7 @@ public sealed partial class MainWindow
         };
         var foot = new StackPanel { Spacing = 8 };
         foot.Children.Add(Text(Loc.T("Technical details"), "TitleStyle"));
-        var why = Text(Loc.T("Animation curves and durations, every material preset value, sizes and weights, corners and spacing: the same values Atrium runs with."), "RowNoteStyle");
+        var why = Text(Loc.T("Animation curves and durations, every material preset value, sizes and weights, corners and spacing: the same values WINMAK runs with."), "RowNoteStyle");
         why.Margin = new Thickness(0, 0, 0, 6);
         foot.Children.Add(why);
         foot.Children.Add(toggle);
@@ -221,7 +221,7 @@ public sealed partial class MainWindow
 
     private void BuildDesignDetails(StackPanel into)
     {
-        into.Children.Add(Section(Loc.T("Motion parameters"), Loc.T("Springs are given Apple's way: duration and bounce (= 1 − damping ratio). Popup animations play in DirectComposition; the rest are computed per frame by the render thread on the composition clock."),
+        into.Children.Add(Section(Loc.T("Motion parameters"), Loc.T("Springs are given Apple's way: duration and bounce (= 1 âˆ’ damping ratio). Popup animations play in DirectComposition; the rest are computed per frame by the render thread on the composition clock."),
             Table(new[] { Loc.T("Curve"), Loc.T("Parameters"), Loc.T("Form"), Loc.T("Used for") }, new[] { 1.2, 1.2, 2.0, 1.6 },
                 Curves.Select(c => new[] { c.Name, c.Spec, c.Formula, c.Use }))));
         var liquid = BarSettings.Liquid();
@@ -247,7 +247,7 @@ public sealed partial class MainWindow
         into.Children.Add(RadiusCard());
         into.Children.Add(Section(Loc.T("Spacing"), null,
             Table(new[] { Loc.T("Name"), Loc.T("Value"), Loc.T("Use") }, new[] { 0.6, 0.5, 2.6 }, Spacing.Select(s => new[] { s.Name, s.Value.ToString(), s.Use }))));
-        into.Children.Add(Section(Loc.T("Dimensions"), Loc.T("Resolution becomes logical width (pixels ÷ scale), then the bar's size is chosen. Icons are half the bar height; the bar is about 6% of the logical screen height."), SizeCard()));
+        into.Children.Add(Section(Loc.T("Dimensions"), Loc.T("Resolution becomes logical width (pixels Ã· scale), then the bar's size is chosen. Icons are half the bar height; the bar is about 6% of the logical screen height."), SizeCard()));
         into.Children.Add(Section(Loc.T("Ink"), Loc.T("Decided by the brightness behind the glass: above 0.50 dark ink, below 0.42 light ink, with no switch in between; a 450 ms ease-out crossfade on change. Ink has three opacity levels."), InkCard()));
         var link = new HyperlinkButton
         {
@@ -409,7 +409,7 @@ public sealed partial class MainWindow
         }
     }
 
-    // A long capsule of the material across the photo, 84 DIP high (the bar at 1.4×).
+    // A long capsule of the material across the photo, 84 DIP high (the bar at 1.4Ã\u2014).
     private static Rendered RenderMaterial(BarSettings material, double w, double h, double rs, Photo photo)
     {
         int pw = (int)Math.Round(w * rs), ph = (int)Math.Round(h * rs);
@@ -458,7 +458,7 @@ public sealed partial class MainWindow
         Canvas.SetLeft(inner, P);
         Canvas.SetTop(inner, P);
         demo.Children.Add(inner);
-        var label = Tabular(Text(Loc.F("R {0} − inset {1} = r {2}", R, P, R - P), "RowTitleStyle"));
+        var label = Tabular(Text(Loc.F("R {0} âˆ’ inset {1} = r {2}", R, P, R - P), "RowTitleStyle"));
         label.Width = Ww - 2 * P;
         label.TextAlignment = TextAlignment.Center;
         Canvas.SetLeft(label, P);
@@ -500,7 +500,7 @@ public sealed partial class MainWindow
         };
         foreach (var (key, name) in tokens) colours.Children.Add(Chip(Tokens.Brush(key), name));
         // The few colours widgets use (WidgetFaces.cs, widget_faces.cpp), as on macOS.
-        foreach (var (c, name) in new[] { (WidgetFaces.Green, Loc.T("Normal · Green")), (WidgetFaces.Orange, Loc.T("Reminder · Orange")), (WidgetFaces.Red, Loc.T("Warning · Red")), (WidgetFaces.Blue, Loc.T("Calendar · Blue")) })
+        foreach (var (c, name) in new[] { (WidgetFaces.Green, Loc.T("Normal \u00B7 Green")), (WidgetFaces.Orange, Loc.T("Reminder \u00B7 Orange")), (WidgetFaces.Red, Loc.T("Warning \u00B7 Red")), (WidgetFaces.Blue, Loc.T("Calendar \u00B7 Blue")) })
             colours.Children.Add(Chip(new SolidColorBrush(c), name));
 
         var grid = new ResponsiveGrid { MinCellWidth = 300, Gap = 28, StretchLastRow = true };
@@ -644,7 +644,7 @@ public sealed partial class MainWindow
         var s = new StackPanel { Spacing = 10 };
         s.Children.Add(stage);
         s.Children.Add(Text(Loc.T("Hover magnification and launch hop"), "RowTitleStyle"));
-        s.Children.Add(Text(Loc.T("Wave: (1 + cos πd) / 2, where d is the pointer's distance in icons (radius 2.3 icons); magnification comes from the Taskbar page."), "RowNoteStyle"));
+        s.Children.Add(Text(Loc.T("Wave: (1 + cos Ï€d) / 2, where d is the pointer's distance in icons (radius 2.3 icons); magnification comes from the Taskbar page."), "RowNoteStyle"));
         return InteractionFrame(stage, s);
     }
 
@@ -658,7 +658,7 @@ public sealed partial class MainWindow
             BorderBrush = new SolidColorBrush(Color.FromArgb(150, 255, 255, 255)), BorderThickness = new Thickness(1),
         };
         var text = new StackPanel { Spacing = 2 };
-        text.Children.Add(new TextBlock { Text = Loc.T("Calendar · Now"), FontSize = 12, Foreground = new SolidColorBrush(Color.FromArgb(150, 0x1D, 0x1D, 0x1F)) });
+        text.Children.Add(new TextBlock { Text = Loc.T("Calendar \u00B7 Now"), FontSize = 12, Foreground = new SolidColorBrush(Color.FromArgb(150, 0x1D, 0x1D, 0x1F)) });
         text.Children.Add(new TextBlock { Text = Loc.T("Product review"), FontSize = 14, FontFamily = (FontFamily)Application.Current.Resources["EmphasisFont"], Foreground = new SolidColorBrush(Color.FromArgb(240, 0x1D, 0x1D, 0x1F)) });
         text.Children.Add(new TextBlock { Text = Loc.T("Click me to show it again."), FontSize = 13, Foreground = new SolidColorBrush(Color.FromArgb(190, 0x1D, 0x1D, 0x1F)) });
         card.Child = text;
@@ -705,7 +705,7 @@ public sealed partial class MainWindow
                 VerticalAlignment = VerticalAlignment.Center,
                 TextTrimming = TextTrimming.CharacterEllipsis,
             };
-            var spec = Tabular(Text(detailed ? $"{size} · {weight}" : name, "RowNoteStyle"));
+            var spec = Tabular(Text(detailed ? $"{size} \u00B7 {weight}" : name, "RowNoteStyle"));
             spec.VerticalAlignment = VerticalAlignment.Center;
             Grid.SetColumn(spec, 1);
             g.Children.Add(sample);
@@ -841,7 +841,7 @@ public sealed partial class MainWindow
         Canvas.SetTop(inner, P);
         demo.Children.Add(outer);
         demo.Children.Add(inner);
-        var label = Text(Loc.F("R {0} − inset {1} = r {2}", R, P, R - P), "RowTitleStyle");
+        var label = Text(Loc.F("R {0} âˆ’ inset {1} = r {2}", R, P, R - P), "RowTitleStyle");
         label.Width = Ww - 2 * P;
         label.TextAlignment = TextAlignment.Center;
         Canvas.SetLeft(label, P);
@@ -854,7 +854,7 @@ public sealed partial class MainWindow
         left.Children.Add(why);
 
         var ladder = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 20, VerticalAlignment = VerticalAlignment.Center };
-        (double R, string Use)[] steps = { (6, Loc.T("Min")), (10, Loc.T("Hover plate")), (22, Loc.T("Module · Widget")), (30, Loc.T("Bar and popup")) };
+        (double R, string Use)[] steps = { (6, Loc.T("Min")), (10, Loc.T("Hover plate")), (22, Loc.T("Module \u00B7 Widget")), (30, Loc.T("Bar and popup")) };
         foreach (var (r, use) in steps)
         {
             var s = new StackPanel { Spacing = 6, HorizontalAlignment = HorizontalAlignment.Center };
@@ -910,7 +910,7 @@ public sealed partial class MainWindow
                 Grid.SetColumnSpan(band, head.Length);
                 g.Children.Add(band);
             }
-            string range = i + 1 < SizeClasses.Length ? $"{(k.From == 0 ? "< " : k.From + "–")}{SizeClasses[i + 1].From - (k.From == 0 ? 0 : 1)}" : $"≥ {k.From}";
+            string range = i + 1 < SizeClasses.Length ? $"{(k.From == 0 ? "< " : k.From + "â€“")}{SizeClasses[i + 1].From - (k.From == 0 ? 0 : 1)}" : $"â‰¥ {k.From}";
             string[] cells = { range, k.Screens, k.Height.ToString(), k.Icon.ToString(), k.Margin.ToString(), k.Magnify.ToString("0.0") };
             for (int c = 0; c < cells.Length; c++)
             {
@@ -925,7 +925,7 @@ public sealed partial class MainWindow
             }
         }
         var k0 = SizeClasses[mine];
-        var here = Text(Loc.F("This screen: {0} × {1} pixels, scale {2:0}% → logical width {3:0}. Suggested bar height {4}, icons {5}; currently bar height {6:0}, icons {7:0}.", area.Width, area.Height, scale * 100, logical, k0.Height, k0.Icon, _current.Height, _current.IconSize),
+        var here = Text(Loc.F("This screen: {0} Ã\u2014 {1} pixels, scale {2:0}% â†’ logical width {3:0}. Suggested bar height {4}, icons {5}; currently bar height {6:0}, icons {7:0}.", area.Width, area.Height, scale * 100, logical, k0.Height, k0.Icon, _current.Height, _current.IconSize),
             "RowNoteStyle");
         here.Margin = new Thickness(10, 12, 10, 0);
         var s = new StackPanel();
@@ -946,7 +946,7 @@ public sealed partial class MainWindow
             foreach (var (name, a) in steps)
                 s.Children.Add(new TextBlock
                 {
-                    Text = $"{name} · {a * 100:0}%",
+                    Text = $"{name} \u00B7 {a * 100:0}%",
                     FontSize = 13.5,
                     FontFamily = (FontFamily)Application.Current.Resources[name == Loc.T("Primary text") ? "EmphasisFont" : "TextFont"],
                     Foreground = new SolidColorBrush(Color.FromArgb((byte)Math.Round(a * 255), ink.R, ink.G, ink.B)),
@@ -963,9 +963,9 @@ public sealed partial class MainWindow
         }
         var grid = new ResponsiveGrid { MinCellWidth = 280, Gap = 16, StretchLastRow = true };
         grid.Children.Add(Panel(Color.FromArgb(255, 0x24, 0x2A, 0x3A), Colors.White, new[] { (Loc.T("Primary text"), 0.96), (Loc.T("Secondary text"), 0.76), (Loc.T("Tertiary text"), 0.56) },
-            Color.FromArgb(255, 0xFF, 0x45, 0x3A), Loc.T("Light ink · dark backdrop")));
+            Color.FromArgb(255, 0xFF, 0x45, 0x3A), Loc.T("Light ink \u00B7 dark backdrop")));
         grid.Children.Add(Panel(Color.FromArgb(255, 0xEC, 0xEE, 0xF3), Color.FromArgb(255, 0x11, 0x13, 0x17), new[] { (Loc.T("Primary text"), 0.92), (Loc.T("Secondary text"), 0.66), (Loc.T("Tertiary text"), 0.46) },
-            Color.FromArgb(255, 0xE0, 0x35, 0x2B), Loc.T("Dark ink · light backdrop")));
+            Color.FromArgb(255, 0xE0, 0x35, 0x2B), Loc.T("Dark ink \u00B7 light backdrop")));
         return grid;
     }
 }

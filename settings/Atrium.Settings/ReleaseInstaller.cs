@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -12,7 +12,7 @@ internal static class ReleaseInstaller
 {
     internal sealed record Prepared(string Tag, string Version, string Directory);
     internal static string InstallDirectory => Path.GetDirectoryName(CoreClient.CoreExe()
-        ?? throw new IOException(Loc.T("Could not find the Atrium program folder.")))!;
+        ?? throw new IOException(Loc.T("Could not find the WINMAK program folder.")))!;
     internal static string CacheDirectory => Path.Combine(Path.GetDirectoryName(CoreClient.SettingsPath)!, "Updates",
         Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(InstallDirectory.ToUpperInvariant())))[..16]);
     private static string StatePath => Path.Combine(CacheDirectory, "ready.json");
@@ -65,13 +65,13 @@ internal static class ReleaseInstaller
         if (download.Error != null) return new(Loc.T("Could not prepare the update. Try again."), true);
         using var job = BitsTransfer.Open(download.Job);
         if (job == null) return File.Exists(Path.Combine(WorkDirectory, "release.zip"))
-            ? new(Loc.T("Preparing the update…")) : new(Loc.T("The download did not finish. Try again."), true);
+            ? new(Loc.T("Preparing the updateâ€¦")) : new(Loc.T("The download did not finish. Try again."), true);
         if (job.CurrentState == BitsTransfer.State.Error) return new(Loc.T("The background download failed. Try again."), true);
-        if (job.CurrentState == BitsTransfer.State.Transferred) return new(Loc.T("Preparing the update…"));
-        if (job.CurrentState == BitsTransfer.State.TransientError) return new(Loc.T("Waiting to resume the background download…"));
+        if (job.CurrentState == BitsTransfer.State.Transferred) return new(Loc.T("Preparing the updateâ€¦"));
+        if (job.CurrentState == BitsTransfer.State.TransientError) return new(Loc.T("Waiting to resume the background downloadâ€¦"));
         var progress = job.CurrentProgress;
         return new(progress.Total is > 0 and < ulong.MaxValue
-            ? Loc.F("Downloading in background… {0}%", Math.Min(100, progress.Transferred * 100 / progress.Total)) : Loc.T("Downloading in background…"));
+            ? Loc.F("Downloading in backgroundâ€¦ {0}%", Math.Min(100, progress.Transferred * 100 / progress.Total)) : Loc.T("Downloading in backgroundâ€¦"));
     }
 
     private static Version CurrentVersion => typeof(ReleaseInstaller).Assembly.GetName().Version!;
@@ -215,7 +215,7 @@ internal static class ReleaseInstaller
         string unpacked = Path.Combine(WorkDirectory, "unpacked");
         if (Directory.Exists(unpacked)) Directory.Delete(unpacked, true); // an interrupted extraction, not transfer data
         ZipFile.ExtractToDirectory(zip, unpacked);
-        string root = File.Exists(Path.Combine(unpacked, "Atrium.exe")) ? unpacked : Path.Combine(unpacked, "Atrium");
+        string root = File.Exists(Path.Combine(unpacked, "WINMAK.exe")) ? unpacked : Path.Combine(unpacked, "Atrium");
         ValidatePackage(root, pending.Release.Version);
         SaveJson(StatePath, new Prepared(pending.Release.Tag, pending.Release.Version.ToString(), root));
         File.Delete(DownloadPath);
@@ -243,7 +243,7 @@ internal static class ReleaseInstaller
 
     private static void ValidatePackage(string directory, Version expected)
     {
-        string core = Path.Combine(directory, "Atrium.exe");
+        string core = Path.Combine(directory, "WINMAK.exe");
         string settings = Path.Combine(directory, "Settings", "Atrium.Settings.exe");
         if (!File.Exists(core) || !File.Exists(settings) || !File.Exists(Path.ChangeExtension(settings, ".dll")))
             throw new IOException(Loc.T("The update package is missing program files. Download again."));

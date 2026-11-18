@@ -1,4 +1,4 @@
-#include "shell/app_registration.h"
+﻿#include "shell/app_registration.h"
 
 #include "log.h"
 #include "settings.h"
@@ -24,7 +24,7 @@ bool IsRegisteredApplication(const std::wstring& directory)
 void RegisterApplication(const std::wstring& directory)
 {
     if (IsDevelopmentBuild()) return;
-    const std::wstring exe = directory + L"\\Atrium.exe";
+    const std::wstring exe = directory + L"\\WINMAK.exe";
     const std::wstring uninstall = directory + L"\\Uninstall.ps1";
     if (GetFileAttributesW(uninstall.c_str()) == INVALID_FILE_ATTRIBUTES ||
         GetFileAttributesW((directory + L"\\Settings\\Atrium.Settings.exe").c_str()) == INVALID_FILE_ATTRIBUTES)
@@ -32,7 +32,7 @@ void RegisterApplication(const std::wstring& directory)
 
     constexpr auto registration = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Atrium";
     const std::pair<const wchar_t*, std::wstring> fields[] = {
-        {L"DisplayName", L"Atrium"}, {L"Publisher", L"Atrium contributors"},
+        {L"DisplayName", L"WINMAK"}, {L"Publisher", L"Atrium contributors"},
         {L"InstallLocation", directory}, {L"DisplayIcon", L"\"" + exe + L"\",0"},
         {L"UninstallString", L"\"" + exe + L"\" --uninstall"},
         {L"URLInfoAbout", L"https://github.com/wynter-yaxley/atrium-desktop"},
@@ -89,7 +89,7 @@ void RegisterApplication(const std::wstring& directory)
         link->GetPath(oldTarget, MAX_PATH, nullptr, SLGP_RAWPATH);
         if (_wcsicmp(oldTarget, exe.c_str()) == 0) return; // leave the user's shortcut exactly as it is
         bool ours = (!previousDirectory.empty() &&
-                     (_wcsicmp(oldTarget, (previousDirectory + L"\\Atrium.exe").c_str()) == 0 ||
+                     (_wcsicmp(oldTarget, (previousDirectory + L"\\WINMAK.exe").c_str()) == 0 ||
                       _wcsicmp(oldTarget, (previousDirectory + L"\\Atrium.Core.exe").c_str()) == 0)) ||
                     _wcsicmp(oldTarget, (directory + L"\\Atrium.Core.exe").c_str()) == 0;
         if (!ours) return;

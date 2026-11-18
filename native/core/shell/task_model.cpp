@@ -1,4 +1,4 @@
-// Task model implementation (D13): EnumWindows + WinEvent hooks on the UI
+﻿// Task model implementation (D13): EnumWindows + WinEvent hooks on the UI
 // thread, AUMID grouping, icons and display names loaded on one worker thread.
 //
 // Threading: everything except `jobs_`, `icons_` and the ready queues is touched
@@ -1796,7 +1796,7 @@ bool LoadAtriumIcon(const std::wstring& exePath, int sizePx, IconImage& out)
 {
     const size_t slash = exePath.find_last_of(L"\\/");
     const wchar_t* name = exePath.c_str() + (slash == std::wstring::npos ? 0 : slash + 1);
-    if (_wcsicmp(name, L"Atrium.Settings.exe") != 0 && _wcsicmp(name, L"Atrium.exe") != 0)
+    if (_wcsicmp(name, L"Atrium.Settings.exe") != 0 && _wcsicmp(name, L"WINMAK.exe") != 0)
         return false;
     HICON icon = nullptr;
     if (SHDefExtractIconW(exePath.c_str(), 0, 0, &icon, nullptr, MAKELONG(sizePx, 0)) != S_OK || !icon)

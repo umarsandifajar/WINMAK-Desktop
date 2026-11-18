@@ -1,4 +1,4 @@
-#include <winres.h>
+﻿#include <winres.h>
 #include "resource.h"
 
 IDI_ATRIUM ICON "../../assets/atrium.ico"
@@ -14,12 +14,12 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "CompanyName", "Atrium contributors"
-            VALUE "FileDescription", "Atrium"
+            VALUE "FileDescription", "WINMAK"
             VALUE "FileVersion", "2.7.0"
             VALUE "InternalName", "Atrium"
             VALUE "LegalCopyright", "MIT License"
-            VALUE "OriginalFilename", "Atrium.exe"
-            VALUE "ProductName", "Atrium"
+            VALUE "OriginalFilename", "WINMAK.exe"
+            VALUE "ProductName", "WINMAK"
             VALUE "ProductVersion", "2.7.0"
         END
     END

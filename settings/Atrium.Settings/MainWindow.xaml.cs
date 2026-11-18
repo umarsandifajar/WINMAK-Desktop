@@ -179,7 +179,7 @@ public sealed partial class MainWindow : Window
         StartupSwitch.IsEnabled = !CoreClient.Development;
         if (CoreClient.Development) ToolTipService.SetToolTip(StartupSwitch, Loc.T("Development builds do not change Windows startup."));
         var v = typeof(MainWindow).Assembly.GetName().Version;
-        VersionText.Text = Loc.F("Version {0}", v?.ToString(3) ?? "1.0.0");
+        VersionText.Text = "Version 2.8.0";
         ShowStatus(false);
         // `--page widgets` (the widgets' menu): open on that page.
         var args = Environment.GetCommandLineArgs();
@@ -461,14 +461,14 @@ public sealed partial class MainWindow : Window
             {
                 UpdateStatus.Text = Loc.T("Update ready; restart to install");
                 UpdateAvailableButton.Visibility = ReleaseLinks.Visibility = Visibility.Visible;
-                ReleaseNotes.NavigateUri ??= new Uri("https://github.com/wynter-yaxley/atrium-desktop/releases/latest");
+                ReleaseNotes.NavigateUri ??= new Uri("https://github.com/umarsandifajar/WINMAK-Desktop/releases/latest");
                 _downloadTimer?.Stop();
             }
             else if (_transferStatus != null)
             {
                 UpdateStatus.Text = _transferStatus.Text;
                 UpdateAvailableButton.Visibility = ReleaseLinks.Visibility = Visibility.Visible;
-                ReleaseNotes.NavigateUri ??= new Uri("https://github.com/wynter-yaxley/atrium-desktop/releases/latest");
+                ReleaseNotes.NavigateUri ??= new Uri("https://github.com/umarsandifajar/WINMAK-Desktop/releases/latest");
                 if (_transferStatus.CanRetry) _downloadTimer?.Stop();
                 else ObserveDownload();
             }
@@ -534,7 +534,7 @@ public sealed partial class MainWindow : Window
         UpdateProgress.Visibility = Visibility.Visible;
         UpdateProgress.IsActive = true;
         ReleaseLinks.Visibility = Visibility.Collapsed;
-        UpdateStatus.Text = Loc.T("Checking…");
+        UpdateStatus.Text = Loc.T("Checkingâ€¦");
         try
         {
             string? installFailure = ReleaseInstaller.ReadFailure();
@@ -544,7 +544,7 @@ public sealed partial class MainWindow : Window
             {
                 UpdateAvailableButton.Visibility = ReleaseLinks.Visibility = Visibility.Visible;
                 UpdateStatus.Text = installFailure == null ? Loc.T("Update ready; restart to install") : Loc.F("Update not installed: {0}", installFailure);
-                ReleaseNotes.NavigateUri = new Uri("https://github.com/wynter-yaxley/atrium-desktop/releases/latest");
+                ReleaseNotes.NavigateUri = new Uri("https://github.com/umarsandifajar/WINMAK-Desktop/releases/latest");
                 ShowInstallAction();
                 return;
             }
@@ -714,15 +714,15 @@ public sealed partial class MainWindow : Window
         bool start = CoreSwitch.IsOn;
         _coreChanging = true;
         CoreSwitch.IsEnabled = false;
-        StatusMessage.Text = start ? Loc.T("Starting…") : Loc.T("Closing…");
+        StatusMessage.Text = start ? Loc.T("Startingâ€¦") : Loc.T("Closingâ€¦");
         Status.IsOpen = false;
         try
         {
-            var exe = CoreClient.CoreExe() ?? throw new FileNotFoundException(Loc.T("Atrium.exe was not found"));
+            var exe = CoreClient.CoreExe() ?? throw new FileNotFoundException(Loc.T("WINMAK.exe was not found"));
             if (start)
             {
                 using var launched = Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
-                if (!await _client.ConnectAsync(8000)) throw new TimeoutException(Loc.T("Could not connect to Atrium. Try again later."));
+                if (!await _client.ConnectAsync(8000)) throw new TimeoutException(Loc.T("Could not connect to WINMAK. Try again later."));
                 bool dirty = !_current.SameAs(_saved);
                 var (saved, current) = await _client.GetAsync();
                 _saved = saved;
@@ -738,7 +738,7 @@ public sealed partial class MainWindow : Window
                 using var quit = Process.Start(new ProcessStartInfo(exe, "--exit") { UseShellExecute = false, CreateNoWindow = true })
                     ?? throw new InvalidOperationException(Loc.T("Could not send the quit request."));
                 await quit.WaitForExitAsync();
-                if (quit.ExitCode != 0) throw new InvalidOperationException(Loc.T("Atrium has not quit yet. Try again later."));
+                if (quit.ExitCode != 0) throw new InvalidOperationException(Loc.T("WINMAK has not quit yet. Try again later."));
                 _client.Disconnect(coreStopped: true);
             }
         }

@@ -1,4 +1,4 @@
-# Atrium: resident process (glass bar, tray icon, settings pipe).
+﻿# Atrium: resident process (glass bar, tray icon, settings pipe).
 
 # HLSL is compiled at build time into headers; the runtime needs no compiler.
 find_program(ATRIUM_FXC fxc
@@ -66,6 +66,7 @@ add_executable(atrium_core WIN32
     ui/window_snapshot.cpp
     shell/weather.cpp
     shell/bluetooth_batteries.cpp
+    shell/media_session.cpp
     shell/network_monitor.cpp
     shell/logon_task.cpp
     ui/window_preview.cpp
@@ -84,8 +85,8 @@ add_executable(atrium_core WIN32
     core.rc
     core.manifest
     ${shader_headers})
-# build/win-x64/<Config>/Atrium.exe
-set_target_properties(atrium_core PROPERTIES OUTPUT_NAME "Atrium" RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# build/win-x64/<Config>/WINMAK.exe
+set_target_properties(atrium_core PROPERTIES OUTPUT_NAME "WINMAK" RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 target_include_directories(atrium_core PRIVATE ${shader_out})
 # The interface face (D40) next to the exe, as in the package.
 set(ui_fonts MiSans-Medium.otf MiSans-Demibold.otf MiSans-Semibold.otf)
@@ -95,7 +96,7 @@ add_custom_command(TARGET atrium_core POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ui_fonts} $<TARGET_FILE_DIR:atrium_core>/Fonts
     VERBATIM)
 # C++/WinRT headers come with the Windows SDK.
-target_compile_options(atrium_core PRIVATE /bigobj)
+target_compile_options(atrium_core PRIVATE /bigobj /utf-8)
 target_compile_definitions(atrium_core PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 if(ATRIUM_DEVELOPMENT)
     target_compile_definitions(atrium_core PRIVATE ATRIUM_DEVELOPMENT)

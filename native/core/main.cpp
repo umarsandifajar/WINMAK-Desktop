@@ -1,4 +1,4 @@
-// Atrium: the resident process. Owns the glass bar, its popups, the desktop
+﻿// Atrium: the resident process. Owns the glass bar, its popups, the desktop
 // widgets, the tray icon and the settings pipe. Explorer's taskbar stays
 // unless the user hides it (setting hideTaskbar, shell/system_chrome.h; D37).
 
@@ -60,7 +60,7 @@ constexpr wchar_t kHostClass[] = L"AtriumCoreHost";
 constexpr wchar_t kGuardMutex[] = L"Local\\Atrium.Guard"; // held by the guard while it runs
 constexpr wchar_t kInstanceMutex[] = L"Local\\Atrium.Core";
 constexpr UINT WM_TRAY = WM_APP + 2;
-constexpr UINT WM_OPEN_SETTINGS = WM_APP + 3; // sent by a second Atrium.exe
+constexpr UINT WM_OPEN_SETTINGS = WM_APP + 3; // sent by a second WINMAK.exe
 constexpr UINT WM_CATALOG = WM_APP + 4;       // the app catalog has news
 constexpr UINT WM_NOTICE = WM_APP + 5;        // lParam: Notice* from the listener thread
 constexpr UINT WM_TRAY_ICONS = WM_APP + 6;    // the tray model has read the icons
@@ -190,7 +190,7 @@ void OpenSettings(const wchar_t* page = nullptr)
             return;
     }
     Log(L"settings: Atrium.Settings.exe not found next to %s", dir.c_str());
-    MessageBoxW(nullptr, Tr(L"Atrium.Settings.exe was not found. Make sure the Settings folder in the installation directory is complete."), L"Atrium", MB_ICONWARNING);
+    MessageBoxW(nullptr, Tr(L"Atrium.Settings.exe was not found. Make sure the Settings folder in the installation directory is complete."), L"WINMAK", MB_ICONWARNING);
 }
 
 void AddTrayIcon()
@@ -202,7 +202,7 @@ void AddTrayIcon()
     nid.uCallbackMessage = WM_TRAY;
     nid.hIcon = static_cast<HICON>(LoadImageW(g_app.instance, MAKEINTRESOURCEW(IDI_ATRIUM), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON),
                                               GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR));
-    wcscpy_s(nid.szTip, L"Atrium");
+    wcscpy_s(nid.szTip, L"WINMAK");
     g_app.trayAdded = Shell_NotifyIconW(NIM_ADD, &nid) != FALSE;
     DestroyIcon(nid.hIcon);
     if (!g_app.trayAdded) {
@@ -362,16 +362,16 @@ void SetStageManager(bool on)
 
 void ShowMenu(POINT pt)
 {
-    std::vector<MenuEntry> entries = {{Tr(L"Appearance Settings…"), kCmdSettings}, {}, {Tr(L"Show Desktop"), kCmdDesktop}, {Tr(L"Task Manager"), kCmdTaskManager}};
+    std::vector<MenuEntry> entries = {{Tr(L"Appearance SettingsÃ¢â‚¬Â¦"), kCmdSettings}, {}, {Tr(L"Show Desktop"), kCmdDesktop}, {Tr(L"Task Manager"), kCmdTaskManager}};
     if (g_app.widgetsOn)
-        entries.push_back({Tr(L"Add Widgets…"), kCmdWidgets});
+        entries.push_back({Tr(L"Add WidgetsÃ¢â‚¬Â¦"), kCmdWidgets});
     // The three modules, each on its own.
     entries.push_back({});
     entries.push_back({Tr(L"Taskbar"), kCmdToggle, g_app.barOn.value_or(true)});
     entries.push_back({Tr(L"Desktop Widgets"), kCmdWidgetsModule, g_app.widgetsOn});
     entries.push_back({Tr(L"Stage Manager"), kCmdStage, g_app.stage->Enabled()});
     entries.push_back({});
-    entries.push_back({Tr(L"Quit Atrium"), kCmdExit});
+    entries.push_back({Tr(L"Quit WINMAK"), kCmdExit});
     g_app.menu->Open(std::move(entries), pt, MenuPlace::Above, [](int cmd) {
         switch (cmd) {
         case kCmdSettings:
@@ -478,7 +478,7 @@ bool RunNoticeAction(const Notice& n)
     return true; // nothing to run: the click just dismisses it
 }
 
-// The chat apps' own switches (Settings ▸ Notifications ▸ Sources); other apps' Windows
+// The chat apps' own switches (Settings Ã¢\u2013Â¸ Notifications Ã¢\u2013Â¸ Sources); other apps' Windows
 // notifications follow notifyListener.
 bool MessengerOn(Messenger m)
 {
@@ -643,7 +643,7 @@ void ApplySettings(const Settings& s)
     }
 }
 
-// While Windows' taskbar or its banners are hidden, a second Atrium.exe (`--guard`, RunGuard)
+// While Windows' taskbar or its banners are hidden, a second WINMAK.exe (`--guard`, RunGuard)
 // watches this one: however it ends (a crash past the exception filter, abort, being killed),
 // what it changed in Windows is put back at once; while it does not respond, the taskbar shows.
 void EnsureGuard()
@@ -881,7 +881,7 @@ void ShowItemMenu(const std::wstring& key, POINT pt)
     std::wstring location = g_app.tasks->FileLocation(key);
     if (!location.empty())
         entries.push_back({Tr(L"Open File Location"), kCmdOpenLocation});
-    entries.push_back({it->pinned ? Tr(L"Unpin from Atrium") : Tr(L"Pin to Atrium"), int(it->pinned ? kCmdUnpin : kCmdPin)});
+    entries.push_back({it->pinned ? Tr(L"Unpin from WINMAK") : Tr(L"Pin to WINMAK"), int(it->pinned ? kCmdUnpin : kCmdPin)});
     if (windowsEntries && !appPath.empty())
         entries.push_back({Tr(L"Properties"), kCmdProperties});
     if (!it->windows.empty())
@@ -924,7 +924,7 @@ void ShowItemMenu(const std::wstring& key, POINT pt)
             break;
         case kCmdTerminate: {
             // Ending the processes loses what is not saved: asked once more, in place.
-            std::vector<MenuEntry> confirm = {{TrFormat(L"Force close “%s”? Unsaved content will be lost", name.c_str()), 0, false, false, true},
+            std::vector<MenuEntry> confirm = {{TrFormat(L"Force close Ã¢â‚¬Å“%sÃ¢â‚¬Â? Unsaved content will be lost", name.c_str()), 0, false, false, true},
                                               {L"", 0},
                                               {Tr(L"Force close"), kCmdTerminateConfirm},
                                               {Tr(L"Cancel"), 0}};
@@ -1323,7 +1323,7 @@ LRESULT CALLBACK HostProc(HWND h, UINT m, WPARAM w, LPARAM l)
                 }
                 Notice notice;
                 notice.source = L"usb";
-                notice.app = L"Atrium";
+                notice.app = L"WINMAK";
                 const std::wstring list = JoinNames(names);
                 if (ejected) {
                     notice.title = Tr(L"Safe to remove hardware");
@@ -1354,7 +1354,7 @@ LRESULT CALLBACK HostProc(HWND h, UINT m, WPARAM w, LPARAM l)
                 lastTrayNotice = now;
                 Notice notice;
                 notice.source = L"atrium";
-                notice.app = L"Atrium";
+                notice.app = L"WINMAK";
                 notice.title = Tr(w == 2 ? L"Use the Windows notification area" : L"Windows notification area is unavailable");
                 notice.body = Tr(w == 2 ? L"Select the icon in the Windows hidden icons panel." : L"Temporarily turn off Hide system taskbar, open the hidden icons panel, and try again.");
                 g_app.notes->Post(std::move(notice));
@@ -1461,7 +1461,7 @@ LRESULT CALLBACK HostProc(HWND h, UINT m, WPARAM w, LPARAM l)
         }
         break;
     case WM_ATRIUM_ADD_WIDGET:
-        return w <= WPARAM(WidgetKind::Network) && l >= 0 && l <= LPARAM(WidgetSize::Large) &&
+        return w <= WPARAM(WidgetKind::Lyrics) && l >= 0 && l <= LPARAM(WidgetSize::Large) &&
                g_app.widgetsOn && g_app.widgets->Add(WidgetKind(w), WidgetSize(l)) ? 1 : 0;
     case WM_ATRIUM_SETTINGS:
         ApplySettings(g_app.server->Current());
@@ -1532,7 +1532,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR cmdLine, int)
             g_readyEvent = startupArguments[i + 1];
     LocalFree(startupArguments);
     if (wcscmp(cmdLine, L"--uninstall") == 0) {
-        if (MessageBoxW(nullptr, Tr(L"Uninstall Atrium? Your personal settings and desktop widget layout will be kept."), L"Atrium",
+        if (MessageBoxW(nullptr, Tr(L"Uninstall WINMAK? Your personal settings and desktop widget layout will be kept."), L"WINMAK",
                         MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_SETFOREGROUND) != IDYES)
             return 0;
         wchar_t system[MAX_PATH]{};
@@ -1542,12 +1542,12 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR cmdLine, int)
         // The launcher exits before the script removes this executable.
         return reinterpret_cast<INT_PTR>(ShellExecuteW(nullptr, L"open", powershell.c_str(), arguments.c_str(), nullptr, SW_HIDE)) > 32 ? 0 : 1;
     }
-    // `Atrium.exe --guard <pid>`: the guard of a run hiding Windows' taskbar (EnsureGuard).
+    // `WINMAK.exe --guard <pid>`: the guard of a run hiding Windows' taskbar (EnsureGuard).
     if (const wchar_t* guard = wcsstr(cmdLine, L"--guard ")) {
         const DWORD pid = wcstoul(guard + 8, nullptr, 10);
         return pid ? RunGuard(pid) : 1;
     }
-    // `Atrium.exe --exit` asks a running instance to quit (installer, updater).
+    // `WINMAK.exe --exit` asks a running instance to quit (installer, updater).
     if (wcsstr(cmdLine, L"--exit")) {
         HWND other = FindWindowW(kHostClass, nullptr);
         if (!other)
@@ -1582,7 +1582,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR cmdLine, int)
         // Another copy (an older version unzipped elsewhere, #44): this one may take over, and
         // the logon entry and the registration move here as it starts.
         bool replaced = false;
-        if (other && MessageBoxW(nullptr, Tr(L"Atrium is running from another location. Quit it and use the version in this folder?"), L"Atrium",
+        if (other && MessageBoxW(nullptr, Tr(L"WINMAK is running from another location. Quit it and use the version in this folder?"), L"WINMAK",
                                  MB_YESNO | MB_ICONQUESTION | MB_SETFOREGROUND) == IDYES) {
             DWORD pid = 0;
             GetWindowThreadProcessId(other, &pid);
@@ -1612,7 +1612,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR cmdLine, int)
     g_app.instance = instance;
     Log(L"core: starting");
     if (LowIntegrity())
-        Log(L"core: running at low integrity (Atrium.exe has a Low label?): settings cannot be saved, the Windows key is left alone");
+        Log(L"core: running at low integrity (WINMAK.exe has a Low label?): settings cannot be saved, the Windows key is left alone");
     const bool registeredHere = IsRegisteredApplication(ExeDir());
     RegisterApplication(ExeDir());
     // A crash must not leave the user without a taskbar.

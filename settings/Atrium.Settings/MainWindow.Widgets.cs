@@ -1,4 +1,4 @@
-using System.Numerics;
+﻿using System.Numerics;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -44,6 +44,12 @@ public sealed partial class MainWindow
         new("bluetooth", "medium", Loc.T("Bluetooth devices"), Loc.T("Name and battery"), "System"),
         new("network", "small", Loc.T("Network"), Loc.T("Down and up rates, with the last minute"), "System"),
         new("network", "medium", Loc.T("Network"), Loc.T("Rates, the last minute and this session's traffic"), "System"),
+        new("prayer", "small", Loc.T("Prayer Times"), Loc.T("Next prayer countdown"), "System"),
+        new("prayer", "medium", Loc.T("Prayer Times"), Loc.T("Full daily prayer schedule"), "System"),
+        new("music", "small", Loc.T("Audio player"), Loc.T("Album art and quick controls"), "System"),
+        new("music", "medium", Loc.T("Audio player"), Loc.T("Straight progress bar, white visualizer and playback controls"), "System"),
+        new("lyrics", "small", Loc.T("Live Lyrics"), Loc.T("Current track lyric banner"), "System"),
+        new("lyrics", "medium", Loc.T("Live Lyrics"), Loc.T("Real-time synced lyrics card"), "System"),
     };
 
     private readonly Dictionary<string, FrameworkElement> _widgetSections = new();

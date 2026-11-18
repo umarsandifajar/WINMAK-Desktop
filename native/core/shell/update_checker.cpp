@@ -1,4 +1,4 @@
-#include "shell/update_checker.h"
+﻿#include "shell/update_checker.h"
 
 #include "localization.h"
 #include "log.h"
@@ -215,7 +215,7 @@ void UpdateChecker::NotifyPrepared(Notifications& notifications)
         Notice notice;
         notice.source = L"atrium-update";
         notice.externalId = 1; // one current update card, independent of ordinary notices
-        notice.app = L"Atrium";
+        notice.app = L"WINMAK";
         notice.title = Tr(L"Update ready");
         notice.body = TrFormat(L"%s has been downloaded. Restart from About to install it.", tag.c_str());
         notice.action = L"settings:updates";

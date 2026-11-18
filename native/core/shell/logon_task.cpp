@@ -1,4 +1,4 @@
-#include "shell/logon_task.h"
+﻿#include "shell/logon_task.h"
 
 #include "log.h"
 
@@ -84,7 +84,7 @@ bool RegisterLogonTask(const std::wstring& exe)
     // Normal priority (a task's default is below normal), on battery too, never stopped.
     const std::wstring xml = L"<?xml version=\"1.0\" encoding=\"UTF-16\"?>"
                              L"<Task version=\"1.2\" xmlns=\"http://schemas.microsoft.com/windows/2004/02/mit/task\">"
-                             L"<RegistrationInfo><Description>Starts Atrium when you sign in.</Description></RegistrationInfo>"
+                             L"<RegistrationInfo><Description>Starts WINMAK when you sign in.</Description></RegistrationInfo>"
                              L"<Triggers><LogonTrigger><Enabled>true</Enabled><UserId>" + sid + L"</UserId></LogonTrigger></Triggers>"
                              L"<Principals><Principal id=\"Author\"><UserId>" + sid +
                              L"</UserId><LogonType>InteractiveToken</LogonType><RunLevel>LeastPrivilege</RunLevel></Principal></Principals>"

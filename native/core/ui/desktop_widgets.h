@@ -1,4 +1,4 @@
-// Desktop widgets after macOS's (Sonoma and later): pieces of the bar's glass
+﻿// Desktop widgets after macOS's (Sonoma and later): pieces of the bar's glass
 // on the desktop, in a grid on the selected desktop display whose halves hug its edges. They
 // stand just above the desktop, under every window, always clear glass with
 // its ink and a few of macOS's colours (widget_faces). Widgets never become
@@ -41,7 +41,7 @@ public:
     static bool ParseNames(const std::wstring& kind, const std::wstring& size, WidgetKind& outKind, WidgetSize& outSize);
 
     std::function<void()> onCalendar;    // a calendar widget was clicked
-    std::function<void()> onAddWidgets;  // "添加小组件…": the settings app's widget gallery
+    std::function<void()> onAddWidgets;  // "æ·»åŠ å°ç»„ä»¶â€¦": the settings app's widget gallery
     std::function<void()> onStatusRequest;
     GlassMenu* menu = nullptr;           // a widget's menu (main's)
 
@@ -109,6 +109,7 @@ private:
     WidgetMaterial material_ = WidgetMaterial::Glass;
     std::unique_ptr<WeatherSource> weather_;
     std::unique_ptr<BluetoothBatteries> bluetooth_;
+    std::unique_ptr<MediaSessionMonitor> media_;
     std::unique_ptr<NetworkMonitor> network_;
     ChineseCalendar lunar_;
     int lastMinute_ = -1;

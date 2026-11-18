@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -47,7 +47,7 @@ internal sealed class CoreClient : IDisposable
 
     public static string? CoreExe()
     {
-        foreach (var p in new[] { Path.Combine(AppContext.BaseDirectory, "..", "Atrium.exe"), Path.Combine(AppContext.BaseDirectory, "Atrium.exe") })
+        foreach (var p in new[] { Path.Combine(AppContext.BaseDirectory, "..", "WINMAK.exe"), Path.Combine(AppContext.BaseDirectory, "WINMAK.exe") })
             if (File.Exists(p)) return Path.GetFullPath(p);
         return null;
     }
@@ -71,7 +71,7 @@ internal sealed class CoreClient : IDisposable
             if (expected == null || !string.Equals(process.MainModule?.FileName, expected, StringComparison.OrdinalIgnoreCase))
             {
                 _connectionLost = true;
-                ConnectionError = Loc.T("Atrium is running from another location; the core in this folder was not connected.");
+                ConnectionError = Loc.T("WINMAK is running from another location; the core in this folder was not connected.");
                 pipe.Dispose();
                 return false;
             }
@@ -189,7 +189,7 @@ internal sealed class CoreClient : IDisposable
     public async Task<string?> AddWidgetAsync(string kind, string size)
     {
         var r = await RequestAsync(new JsonObject { ["op"] = "add-widget", ["kind"] = kind, ["size"] = size });
-        if (r == null) return Loc.T("Atrium is not running");
+        if (r == null) return Loc.T("WINMAK is not running");
         return r["op"]?.GetValue<string>() == "ok" ? null : r["message"]?.GetValue<string>() ?? "error";
     }
 
@@ -251,7 +251,7 @@ internal sealed class CoreClient : IDisposable
         try
         {
             using var run = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
-            var exe = CoreExe() ?? throw new FileNotFoundException(Loc.T("Atrium.exe was not found"));
+            var exe = CoreExe() ?? throw new FileNotFoundException(Loc.T("WINMAK.exe was not found"));
             var command = $"\"{exe}\"";
             if (s.StartOnLogin)
             {
@@ -260,7 +260,7 @@ internal sealed class CoreClient : IDisposable
             else
             {
                 if (run.GetValue("Atrium") is string owner && !string.Equals(owner, command, StringComparison.OrdinalIgnoreCase))
-                    throw new IOException(Loc.T("That startup entry belongs to Atrium in another location"));
+                    throw new IOException(Loc.T("That startup entry belongs to WINMAK in another location"));
                 RemoveLogonTask(exe);
                 run.DeleteValue("Atrium", throwOnMissingValue: false);
             }
@@ -287,7 +287,7 @@ internal sealed class CoreClient : IDisposable
             catch (COMException e) when (e.HResult == unchecked((int)0x80070002)) { return; } // no task
             string command = ((string)task.Definition.Actions.Item(1).Path).Trim('"');
             if (!string.Equals(command, exe, StringComparison.OrdinalIgnoreCase))
-                throw new IOException(Loc.T("That startup entry belongs to Atrium in another location"));
+                throw new IOException(Loc.T("That startup entry belongs to WINMAK in another location"));
             folder.DeleteTask(name, 0);
         }
         catch (COMException e)

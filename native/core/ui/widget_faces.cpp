@@ -981,6 +981,7 @@ float ReminderScrollMax(const WidgetContent& content, WidgetSize size)
 
 bool WidgetSupports(WidgetKind kind, WidgetSize size)
 {
+    if (kind == WidgetKind::Prayer || kind == WidgetKind::Music || kind == WidgetKind::Lyrics) return size == WidgetSize::Small || size == WidgetSize::Medium;
     switch (kind) {
     case WidgetKind::Battery:
         return size == WidgetSize::Small;
@@ -994,6 +995,266 @@ bool WidgetSupports(WidgetKind kind, WidgetSize size)
     default:
         return true;
     }
+}
+
+void PaintPrayer(Canvas& c, WidgetSize size, const WidgetWorld& world, const Pal& p, float W, float H)
+{
+    const D2D1_COLOR_F text = p.text, sub = p.sub, faint = p.track;
+    const D2D1_COLOR_F accent = D2D1::ColorF(0.22f, 0.78f, 0.56f, 1.0f);
+    const PrayerSchedule& ps = world.prayer;
+    static const wchar_t* kNames[5] = { L"Subuh", L"Dzuhur", L"Ashar", L"Maghrib", L"Isya" };
+    int idx = (ps.nextIndex >= 0 && ps.nextIndex < 5) ? ps.nextIndex : 0;
+    const float pad = 16.0f;
+
+    c.Text(ps.city.empty() ? L"Jadwal Sholat" : ps.city, D2D1::RectF(pad, 14, W - pad, 30), 12.0f, sub, DWRITE_FONT_WEIGHT_SEMI_BOLD);
+
+    wchar_t cdBuf[48];
+    int hh = ps.minsUntilNext / 60, mm = ps.minsUntilNext % 60;
+    if (hh > 0) swprintf_s(cdBuf, L"-%d jam %d mnt", hh, mm);
+    else swprintf_s(cdBuf, L"-%d menit", mm);
+
+    if (size == WidgetSize::Small) {
+        c.Text(kNames[idx], D2D1::RectF(pad, 36, W - pad, 58), 16.0f, accent, DWRITE_FONT_WEIGHT_BOLD);
+        c.Text(FormatPrayerTime(ps.minutes[idx]), D2D1::RectF(pad, 60, W - pad, 94), 28.0f, text, DWRITE_FONT_WEIGHT_BOLD);
+        c.Text(cdBuf, D2D1::RectF(pad, 98, W - pad, 116), 12.0f, sub, DWRITE_FONT_WEIGHT_NORMAL);
+
+        float barY = H - 20.0f, barW = W - pad * 2.0f;
+        c.Fill(D2D1::RectF(pad, barY, pad + barW, barY + 4.0f), 2.0f, faint);
+        if (ps.progress > 0.01f)
+            c.Fill(D2D1::RectF(pad, barY, pad + barW * ps.progress, barY + 4.0f), 2.0f, accent);
+        return;
+    }
+
+    c.Text(kNames[idx], D2D1::RectF(pad, 34, W * 0.55f, 56), 15.5f, accent, DWRITE_FONT_WEIGHT_BOLD);
+    c.Text(FormatPrayerTime(ps.minutes[idx]), D2D1::RectF(pad, 56, W * 0.55f, 88), 26.0f, text, DWRITE_FONT_WEIGHT_BOLD);
+    c.Text(cdBuf, D2D1::RectF(W * 0.55f, 58, W - pad, 80), 12.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 2);
+
+    float barY = 94.0f, barW = W - pad * 2.0f;
+    c.Fill(D2D1::RectF(pad, barY, pad + barW, barY + 3.5f), 1.75f, faint);
+    if (ps.progress > 0.01f)
+        c.Fill(D2D1::RectF(pad, barY, pad + barW * ps.progress, barY + 3.5f), 1.75f, accent);
+
+    float colW = (W - pad * 2.0f) / 5.0f;
+    for (int i = 0; i < 5; ++i) {
+        float x0 = pad + i * colW, x1 = x0 + colW;
+        bool isNext = (i == idx);
+        c.Text(kNames[i], D2D1::RectF(x0, 108, x1, 124), 10.5f, isNext ? accent : sub, isNext ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL, 1);
+        c.Text(FormatPrayerTime(ps.minutes[i]), D2D1::RectF(x0, 125, x1, 143), 11.5f, isNext ? text : sub, isNext ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL, 1);
+    }
+}
+
+static std::wstring FormatDurationMs(int64_t ms)
+{
+    if (ms < 0) ms = 0;
+    int totalSec = static_cast<int>(ms / 1000);
+    wchar_t buf[24];
+    swprintf_s(buf, L"%d:%02d", totalSec / 60, totalSec % 60);
+    return buf;
+}
+
+static void DrawMiniVisualizer(Canvas& c, float rightX, float topY, bool playing)
+{
+    const int bars = 4;
+    const float barW = 2.6f, gap = 2.4f, maxH = 14.0f, minH = 3.5f;
+    const float totalW = bars * barW + (bars - 1) * gap;
+    const float startX = rightX - totalW;
+    const float bottomY = topY + maxH;
+
+    D2D1_COLOR_F white = D2D1::ColorF(1.0f, 1.0f, 1.0f, playing ? 0.92f : 0.45f);
+    double t = double(GetTickCount64()) / 140.0;
+    const float phases[4] = { 0.0f, 1.7f, 3.1f, 0.9f };
+    const float speeds[4] = { 1.15f, 1.55f, 1.30f, 1.70f };
+
+    for (int i = 0; i < bars; ++i) {
+        float level = 0.0f;
+        if (playing) {
+            float s1 = 0.5f + 0.5f * std::sin(float(t * speeds[i]) + phases[i]);
+            float s2 = 0.5f + 0.5f * std::cos(float(t * (speeds[i] * 0.7f)) - phases[i]);
+            level = 0.25f + 0.75f * (s1 * 0.65f + s2 * 0.35f);
+        }
+        float h = minH + (maxH - minH) * level;
+        float x = startX + i * (barW + gap);
+        c.Fill(D2D1::RectF(x, bottomY - h, x + barW, bottomY), barW * 0.5f, white);
+    }
+}
+
+void PaintMusic(Canvas& c, WidgetSize size, const WidgetWorld& world, const Pal& p, float W, float H, std::vector<WidgetHit>& hits)
+{
+    const D2D1_COLOR_F text = p.text, sub = p.sub, faint = p.track;
+    const D2D1_COLOR_F white = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.95f);
+    const MediaInfo& m = world.media;
+    const float pad = 16.0f;
+
+    if (!m.hasSession || m.title.empty()) {
+        c.Text(L"Audio Player", D2D1::RectF(pad, 14, W - pad, 32), 13.5f, text, DWRITE_FONT_WEIGHT_SEMI_BOLD);
+        c.Text(L"No media playing", D2D1::RectF(pad, H * 0.5f - 10.0f, W - pad, H * 0.5f + 12.0f), 13.0f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        return;
+    }
+
+    if (size == WidgetSize::Small) {
+        float artSz = 56.0f;
+        D2D1_RECT_F artR = D2D1::RectF(pad, pad, pad + artSz, pad + artSz);
+        if (m.art && !m.artKey.empty()) c.ImageRounded(m.artKey, *m.art, artR, 12.0f);
+        else { c.Fill(artR, 12.0f, faint); c.Text(L"\u266B", artR, 22.0f, sub, DWRITE_FONT_WEIGHT_BOLD, 1); }
+
+        DrawMiniVisualizer(c, W - pad, pad + 2.0f, m.playing);
+
+        c.Text(m.title, D2D1::RectF(pad, pad + artSz + 10.0f, W - pad, pad + artSz + 28.0f), 13.5f, text, DWRITE_FONT_WEIGHT_BOLD);
+        c.Text(m.artist.empty() ? L"Unknown Artist" : m.artist, D2D1::RectF(pad, pad + artSz + 28.0f, W - pad, pad + artSz + 44.0f), 11.5f, sub, DWRITE_FONT_WEIGHT_NORMAL);
+
+        float btnY = H - 24.0f;
+        D2D1_RECT_F ppHit = D2D1::RectF(W * 0.5f - 28.0f, btnY - 14.0f, W * 0.5f, btnY + 14.0f);
+        D2D1_RECT_F nxHit = D2D1::RectF(W * 0.5f + 6.0f, btnY - 14.0f, W * 0.5f + 34.0f, btnY + 14.0f);
+        hits.push_back({ ppHit, L"media_playpause" });
+        hits.push_back({ nxHit, L"media_next" });
+        c.Text(m.playing ? L"\u275A\u275A" : L"\u25B6", ppHit, 13.0f, text, DWRITE_FONT_WEIGHT_BOLD, 1);
+        c.Text(L"\u25B6\u25B6", nxHit, 12.0f, text, DWRITE_FONT_WEIGHT_BOLD, 1);
+        return;
+    }
+
+    float artSz = 92.0f, artTop = 18.0f;
+    D2D1_RECT_F artR = D2D1::RectF(pad, artTop, pad + artSz, artTop + artSz);
+    if (m.art && !m.artKey.empty()) c.ImageRounded(m.artKey, *m.art, artR, 12.0f);
+    else { c.Fill(artR, 14.0f, faint); c.Text(L"\u266B", artR, 30.0f, sub, DWRITE_FONT_WEIGHT_BOLD, 1); }
+
+    DrawMiniVisualizer(c, W - pad, artTop + 4.0f, m.playing);
+
+    float rightL = artR.right + 14.0f, rightR = W - pad;
+    float titleR = rightR - 26.0f;
+    c.Text(m.title, D2D1::RectF(rightL, artTop + 2.0f, titleR, artTop + 24.0f), 15.5f, text, DWRITE_FONT_WEIGHT_BOLD);
+    c.Text(m.artist.empty() ? L"Unknown Artist" : m.artist, D2D1::RectF(rightL, artTop + 25.0f, rightR, artTop + 44.0f), 13.0f, sub, DWRITE_FONT_WEIGHT_NORMAL);
+
+    float barMidY = artTop + 61.0f, barH = 3.5f;
+    float barL = rightL + 2.0f, barR = rightR - 2.0f;
+    float barW = std::max(20.0f, barR - barL);
+    hits.push_back({ D2D1::RectF(barL, barMidY - 10.0f, barR, barMidY + 10.0f), L"media_seek" });
+
+    // Gunakan static track ID agar waktu lokal terus maju mulus selama lagu sama
+    static std::wstring s_lastTitle;
+    static int64_t s_basePosMs = 0;
+    static uint64_t s_baseTick = 0;
+
+    if (m.title != s_lastTitle) {
+        s_lastTitle = m.title;
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    } else if (abs(int64_t(m.positionMs) - int64_t(s_basePosMs)) > 2500) {
+        // Jika ada loncatan seek manual dari user, sinkronkan ulang
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    }
+
+    int64_t livePosMs = s_basePosMs;
+    if (m.playing && s_baseTick > 0 && m.durationMs > 0) {
+        uint64_t elapsed = GetTickCount64() - s_baseTick;
+        livePosMs = std::min(m.durationMs, s_basePosMs + static_cast<int64_t>(elapsed));
+    } else {
+        livePosMs = m.positionMs;
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    }
+    if (m.durationMs > 0) livePosMs = std::clamp<int64_t>(livePosMs, 0, m.durationMs);
+    float ratio = m.durationMs > 0 ? std::clamp(float(double(livePosMs) / double(m.durationMs)), 0.0f, 1.0f) : 0.0f;
+    float thumbX = barL + barW * ratio;
+
+    c.Fill(D2D1::RectF(barL, barMidY - barH * 0.5f, barR, barMidY + barH * 0.5f), barH * 0.5f, faint);
+    if (thumbX > barL)
+        c.Fill(D2D1::RectF(barL, barMidY - barH * 0.5f, thumbX, barMidY + barH * 0.5f), barH * 0.5f, white);
+    c.Fill(D2D1::RectF(thumbX - 4.5f, barMidY - 4.5f, thumbX + 4.5f, barMidY + 4.5f), 4.5f, white);
+
+    c.Text(FormatDurationMs(livePosMs), D2D1::RectF(rightL, barMidY + 10.0f, rightL + 54.0f, barMidY + 26.0f), 11.0f, sub, DWRITE_FONT_WEIGHT_NORMAL, 0);
+    c.Text(FormatDurationMs(m.durationMs), D2D1::RectF(rightR - 54.0f, barMidY + 10.0f, rightR, barMidY + 26.0f), 11.0f, sub, DWRITE_FONT_WEIGHT_NORMAL, 2);
+
+    float ctrlY = H - 24.0f, cx = W * 0.5f;
+    D2D1_RECT_F prevR = D2D1::RectF(cx - 64.0f, ctrlY - 14.0f, cx - 28.0f, ctrlY + 14.0f);
+    D2D1_RECT_F playR = D2D1::RectF(cx - 18.0f, ctrlY - 14.0f, cx + 18.0f, ctrlY + 14.0f);
+    D2D1_RECT_F nextR = D2D1::RectF(cx + 28.0f, ctrlY - 14.0f, cx + 64.0f, ctrlY + 14.0f);
+    hits.push_back({ prevR, L"media_prev" });
+    hits.push_back({ playR, L"media_playpause" });
+    hits.push_back({ nextR, L"media_next" });
+
+    c.Text(L"\u25C0\u25C0", prevR, 12.0f, text, DWRITE_FONT_WEIGHT_BOLD, 1);
+    c.Text(m.playing ? L"\u275A\u275A" : L"\u25B6", playR, 14.5f, text, DWRITE_FONT_WEIGHT_BOLD, 1);
+    c.Text(L"\u25B6\u25B6", nextR, 12.0f, text, DWRITE_FONT_WEIGHT_BOLD, 1);
+}
+
+void PaintLyrics(Canvas& c, WidgetSize size, const WidgetWorld& world, const Pal& p, float W, float H)
+{
+    const D2D1_COLOR_F text = p.text, sub = p.sub, faint = p.track;
+    const D2D1_COLOR_F white = D2D1::ColorF(1.0f, 1.0f, 1.0f, 0.96f);
+    const MediaInfo& m = world.media;
+    const float pad = 16.0f;
+
+    c.Text(L"Live Lyrics", D2D1::RectF(pad, 14, W - 44.0f, 32), 12.5f, sub, DWRITE_FONT_WEIGHT_SEMI_BOLD);
+    DrawMiniVisualizer(c, W - pad, 14.0f, m.hasSession && m.playing);
+
+    if (!m.hasSession || m.title.empty()) {
+        c.Text(L"Play a track to sync lyrics", D2D1::RectF(pad, H * 0.5f - 10.0f, W - pad, H * 0.5f + 12.0f), 12.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        return;
+    }
+
+    // Gunakan static track ID agar waktu lokal terus maju mulus selama lagu sama
+    static std::wstring s_lastTitle;
+    static int64_t s_basePosMs = 0;
+    static uint64_t s_baseTick = 0;
+
+    if (m.title != s_lastTitle) {
+        s_lastTitle = m.title;
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    } else if (abs(int64_t(m.positionMs) - int64_t(s_basePosMs)) > 2500) {
+        // Jika ada loncatan seek manual dari user, sinkronkan ulang
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    }
+
+    int64_t livePosMs = s_basePosMs;
+    if (m.playing && s_baseTick > 0 && m.durationMs > 0) {
+        uint64_t elapsed = GetTickCount64() - s_baseTick;
+        livePosMs = std::min(m.durationMs, s_basePosMs + static_cast<int64_t>(elapsed));
+    } else {
+        livePosMs = m.positionMs;
+        s_basePosMs = m.positionMs;
+        s_baseTick = m.updatedTickMs;
+    }
+
+    int activeIdx = -1;
+    for (int i = 0; i < int(m.lyrics.size()); ++i) {
+        if (livePosMs >= m.lyrics[i].timeMs) activeIdx = i;
+        else break;
+    }
+
+    if (m.lyrics.empty()) {
+        c.Text(m.title, D2D1::RectF(pad, 44.0f, W - pad, 64.0f), 13.5f, white, DWRITE_FONT_WEIGHT_BOLD, 1);
+        c.Text(L"No synced lyrics found", D2D1::RectF(pad, 72.0f, W - pad, 92.0f), 11.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        c.Text(m.artist.empty() ? L"Unknown Artist" : m.artist, D2D1::RectF(pad, H - 28.0f, W - pad, H - 12.0f), 10.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        return;
+    }
+
+    if (activeIdx < 0) activeIdx = 0;
+    std::wstring prevLine = (activeIdx > 0) ? m.lyrics[activeIdx - 1].text : L"";
+    std::wstring currLine = m.lyrics[activeIdx].text;
+    std::wstring nextLine = (activeIdx + 1 < int(m.lyrics.size())) ? m.lyrics[activeIdx + 1].text : L"";
+
+    if (size == WidgetSize::Small) {
+        if (!prevLine.empty()) c.Text(prevLine, D2D1::RectF(pad, 36.0f, W - pad, 54.0f), 10.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        c.Text(currLine, D2D1::RectF(pad, 56.0f, W - pad, 104.0f), 13.5f, white, DWRITE_FONT_WEIGHT_BOLD, 1);
+        if (!nextLine.empty()) c.Text(nextLine, D2D1::RectF(pad, 108.0f, W - pad, 128.0f), 11.0f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        c.Text(m.title, D2D1::RectF(pad, H - 22.0f, W - pad, H - 10.0f), 9.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+        return;
+    }
+
+    float artSz = 36.0f;
+    D2D1_RECT_F artR = D2D1::RectF(pad, 36.0f, pad + artSz, 36.0f + artSz);
+    if (m.art && !m.artKey.empty()) c.ImageRounded(m.artKey, *m.art, artR, 8.0f);
+    else { c.Fill(artR, 8.0f, faint); c.Text(L"\u266B", artR, 14.0f, sub, DWRITE_FONT_WEIGHT_BOLD, 1); }
+
+    c.Text(m.title, D2D1::RectF(artR.right + 10.0f, 37.0f, W - pad, 54.0f), 13.0f, text, DWRITE_FONT_WEIGHT_BOLD);
+    c.Text(m.artist.empty() ? L"Unknown Artist" : m.artist, D2D1::RectF(artR.right + 10.0f, 55.0f, W - pad, 70.0f), 11.0f, sub, DWRITE_FONT_WEIGHT_NORMAL);
+
+    if (!prevLine.empty()) c.Text(prevLine, D2D1::RectF(pad, 78.0f, W - pad, 95.0f), 11.5f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
+    c.Text(currLine, D2D1::RectF(pad, 96.0f, W - pad, 122.0f), 15.0f, white, DWRITE_FONT_WEIGHT_BOLD, 1);
+    if (!nextLine.empty()) c.Text(nextLine, D2D1::RectF(pad, 125.0f, W - pad, 144.0f), 12.0f, sub, DWRITE_FONT_WEIGHT_NORMAL, 1);
 }
 
 void PaintWidget(Canvas& c, WidgetKind kind, WidgetSize size, WidgetMaterial material, const WidgetContent& content, const WidgetWorld& world,
@@ -1032,6 +1293,15 @@ void PaintWidget(Canvas& c, WidgetKind kind, WidgetSize size, WidgetMaterial mat
         break;
     case WidgetKind::Bluetooth:
         PaintBluetooth(c, size, world, p, W, H);
+        break;
+    case WidgetKind::Prayer:
+        PaintPrayer(c, size, world, p, W, H);
+        break;
+    case WidgetKind::Music:
+        PaintMusic(c, size, world, p, W, H, hits);
+        break;
+    case WidgetKind::Lyrics:
+        PaintLyrics(c, size, world, p, W, H);
         break;
     case WidgetKind::Network:
         PaintNetwork(c, size, world, p, W, H);

@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Text;
@@ -82,7 +82,7 @@ public sealed partial class MainWindow
         Loupe.Background = _loupeBrush;
         _renderWorker = new LatestWorker<RenderJob>(RenderFrame);
         _swatchWorker = new LatestWorker<BarSettings>(job => RenderSwatch(job, SwatchCustom));
-        _previewRunning = new PinVm(this, new PinnedApp("Atrium", Environment.ProcessPath!, "", ""))
+        _previewRunning = new PinVm(this, new PinnedApp("WINMAK", Environment.ProcessPath!, "", ""))
         {
             Icon = new BitmapImage(new Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "atrium-256.png"))) { DecodePixelWidth = 96 },
         };
@@ -188,7 +188,7 @@ public sealed partial class MainWindow
         double X(double left) => left < 0 ? -1 : bx + left * S;
 
         // As if the pointer rested on the bar, just above the second app: the icons take the wave
-        // with 栏上方提前放大图标 (magnifyNear); the glass rises on its own switch below.
+        // with æ ä¸Šæ–¹æå‰æ”¾å¤§å›¾æ ‡ (magnifyNear); the glass rises on its own switch below.
         double k = wave && mag > 1.001 && s.MagnifyNear ? mag - 1 : 0, range = pitch * 2.3 * S;
         double centre = n > 1 ? bx + (appsLeft + pitch) * S + P * S / 2 : bx + (pad + P / 2) * S;
         double Map(double u)
@@ -302,8 +302,8 @@ public sealed partial class MainWindow
         }
         else if (_engaged == Loc.T("Enter distance") || _engaged == Loc.T("Leave distance"))
         {
-            // The band above the bar that answers a pointer coming down onto it (栏上方提前拱起 /
-            // 提前放大图标): a dashed line at the enter distance, and the leave one while it is set.
+            // The band above the bar that answers a pointer coming down onto it (æ ä¸Šæ–¹æå‰æ‹±èµ· /
+            // æå‰æ”¾å¤§å›¾æ ‡): a dashed line at the enter distance, and the leave one while it is set.
             double x0 = L.BarX + 8, x1 = Math.Max(x0 + 1, barRight - 8);
             double enterY = L.BarY - _current.NearEnter * L.S, leaveY = L.BarY - _current.NearLeave * L.S;
             Line(x0, enterY, x1, enterY, dashed: true);
@@ -353,7 +353,7 @@ public sealed partial class MainWindow
             Interlocked.Exchange(ref _photoPending, _mainBg);
         }
         // Keep the specimen and loupe in step with the two early-answer switches: the glass
-        // rises with 跟随鼠标拱起 + 栏上方提前拱起 (hoverRise + riseNear), whether or not the
+        // rises with è·Ÿéšé¼ æ ‡æ‹±èµ· + æ ä¸Šæ–¹æå‰æ‹±èµ· (hoverRise + riseNear), whether or not the
         // icons take the wave with it.
         double waveRise = j.S.HoverRise && j.S.RiseNear ? Math.Clamp(j.S.Magnify, 1, 2) - 1 : 0;
         GlassSpec Spec(double ppd) => GlassSpec.For(j.S, L.S * ppd) with

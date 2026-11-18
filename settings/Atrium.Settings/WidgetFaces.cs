@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
@@ -223,6 +223,9 @@ internal static partial class WidgetFaces
                 }
                 break;
             }
+            case "prayer": { double pad = size == "small" ? Pad : 16; Text(c, "Bekasi", pad, pad - 2, w - pad, pad + 14, 11.5, p.Sub, 2, 0, p); Text(c, "Ashar", pad, pad + 20, w - pad, pad + 40, 15, Color.FromArgb(255, 56, 199, 143), 3, 0, p); Text(c, "15:18", pad, pad + 42, w - pad, pad + 74, 24, p.Text, 3, 0, p); break; }
+            case "music": { double pad = size == "small" ? Pad : 16; Text(c, "Audio Player", pad, pad - 2, w - pad, pad + 16, 13, p.Text, 3, 0, p); Text(c, "Visualizer & Controls", pad, h * 0.5 - 8, w - pad, h * 0.5 + 12, 11.5, p.Sub, 1, 0, p); break; }
+            case "lyrics": { double pad = size == "small" ? Pad : 16; Text(c, "Live Lyrics", pad, pad - 2, w - pad, pad + 16, 13, p.Sub, 2, 0, p); Text(c, "\u266A Synced Lyrics", pad, h * 0.5 - 8, w - pad, h * 0.5 + 12, 13, p.Text, 3, 0, p); break; }
             case "network":
             {
                 // PaintNetwork, with example data: the gallery reads no counters itself.

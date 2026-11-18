@@ -1,4 +1,4 @@
-#include "ui/notifications.h"
+﻿#include "ui/notifications.h"
 
 #include "localization.h"
 
@@ -53,7 +53,7 @@ std::wstring Ago(ULONGLONG t)
 {
     ULONGLONG s = (GetTickCount64() - t) / 1000;
     if (s < 60)
-        return Tr(L"Just now"); // 刚刚
+        return Tr(L"Just now"); // åˆšåˆš
     if (s < 3600)
         return TrFormat(L"%d min ago", int(s / 60));
     return TrFormat(L"%d h ago", int(s / 3600));
@@ -666,13 +666,13 @@ void Notifications::PaintCard(Canvas& c, const Notice& n, D2D1_RECT_F r, int ind
     if (n.unread)
         c.Circle(tx + 3, ty + 8, 3.5f, t.accent);
     float nameX = tx + (n.unread ? 12 : 0);
-    std::wstring app = n.app.empty() ? L"Atrium" : n.app;
+    std::wstring app = n.app.empty() ? L"WINMAK" : n.app;
     if (n.count > 1)
-        app = TrFormat(L"%s  ·  %d messages", app.c_str(), n.count);
+        app = TrFormat(L"%s  \u00B7  %d messages", app.c_str(), n.count);
     c.Text(app, D2D1::RectF(nameX, ty, x + w - 170, ty + 16), 12, t.subtext, DWRITE_FONT_WEIGHT_SEMI_BOLD);
     std::wstring when = Ago(n.time);
     if (v.stacked && v.count > 1 && index == v.front) // which card of the stack is in front (the wheel turns it)
-        when = std::to_wstring(index + 1) + L"/" + std::to_wstring(v.count) + L"  ·  " + when;
+        when = std::to_wstring(index + 1) + L"/" + std::to_wstring(v.count) + L"  \u00B7  " + when;
     c.Text(when, D2D1::RectF(x + w - 170, ty, x + w - 50, ty + 16), 12, t.faint, DWRITE_FONT_WEIGHT_NORMAL, 2);
     c.Text(n.title, D2D1::RectF(tx, ty + 22, x + w - 20, ty + 42), 14, t.text, DWRITE_FONT_WEIGHT_SEMI_BOLD);
     std::wstring body = hideBody ? Tr(L"Content hidden") : n.body;
@@ -870,7 +870,7 @@ void Notifications::Paint(Mode mode, Canvas& c)
         if (c.panel)
             c.Fill(pill, pr, t.panel);
         size_t live = shown.size() - std::min(shown.size(), leaving_.size());
-        std::wstring label = live ? TrFormat(L"Notifications  ·  %d", int(live)) : Tr(L"No new notifications");
+        std::wstring label = live ? TrFormat(L"Notifications  \u00B7  %d", int(live)) : Tr(L"No new notifications");
         c.Text(label, D2D1::RectF(pill.left + 20, pill.top, w / 2 + 40, pill.bottom), 13.5f, live ? t.text : t.subtext,
                live ? DWRITE_FONT_WEIGHT_SEMI_BOLD : DWRITE_FONT_WEIGHT_NORMAL);
         float x = pill.right - 6;

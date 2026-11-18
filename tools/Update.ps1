@@ -1,4 +1,4 @@
-# Launched only after the user chooses to restart. Runs outside the install folder.
+﻿# Launched only after the user chooses to restart. Runs outside the install folder.
 param(
     [Parameter(Mandatory)][string]$InstallDirectory,
     [Parameter(Mandatory)][string]$PackageDirectory,
@@ -30,7 +30,7 @@ function Assert-TemporaryPath([string]$Path) {
     $absolute = [IO.Path]::GetFullPath($Path).TrimEnd('\')
     if ((Split-Path -Parent $absolute) -ne $parent -or
         ((Split-Path -Leaf $absolute) -ne "$name.update-$suffix" -and
-         (Split-Path -Leaf $absolute) -ne "$name.previous-$suffix")) { throw '更新临时目录无效。' }
+         (Split-Path -Leaf $absolute) -ne "$name.previous-$suffix")) { throw 'æ›´æ–°ä¸´æ—¶ç›®å½•æ— æ•ˆã€‚' }
 }
 
 # Moves what is in $From into $To (merging folders). A folder some process is in (its current
@@ -50,7 +50,7 @@ function Move-Tree([string]$From, [string]$To, [switch]$Keep) {
             try { Move-Item -LiteralPath $item.FullName -Destination $target; break }
             catch {
                 if ($try -lt 6) { Start-Sleep -Milliseconds 300; continue }
-                throw "无法替换 $($item.FullName)（$($_.Exception.Message.TrimEnd('。', '.'))），请关闭正在使用它的程序后重试。"
+                throw "æ— æ³•æ›¿æ¢ $($item.FullName)ï¼ˆ$($_.Exception.Message.TrimEnd('ã€‚', '.'))ï¼‰ï¼Œè¯·å…³é—­æ­£åœ¨ä½¿ç”¨å®ƒçš„ç¨‹åºåŽé‡è¯•ã€‚"
             }
         }
     }
@@ -68,7 +68,7 @@ function Get-CrashCause([datetime]$Since) {
         if (!$last) { return '' }
         $cause = $last.Substring(20).Trim()
         if ($cause.Length -gt 200) { $cause = $cause.Substring(0, 200) + '...' }
-        return "：$cause"
+        return "ï¼š$cause"
     } catch { return '' }
 }
 
@@ -76,7 +76,7 @@ function Get-CrashCause([datetime]$Since) {
 # 4580-4582. Windows PowerShell's Start-Process keeps only the system message, not the code, so compare that.
 function Test-AppControlBlock([string]$Message) {
     foreach ($code in @(4550..4559) + @(4580..4582)) {
-        $text = ([ComponentModel.Win32Exception]::new($code)).Message.Trim().TrimEnd('。', '.')
+        $text = ([ComponentModel.Win32Exception]::new($code)).Message.Trim().TrimEnd('ã€‚', '.')
         if ($text -and $Message.Contains($text)) { return $true }
     }
     return $false
@@ -92,22 +92,22 @@ function Start-Verified([string]$Executable, [string]$Kind, [string]$Arguments) 
         } catch {
             if (!(Test-AppControlBlock $_.Exception.Message)) { throw }
             # The release is not code-signed; each version's new files have no reputation yet.
-            throw ("Windows 应用程序控制阻止了新版 $Kind 运行，已保留旧版本。新版文件没有代码签名，可能被智能应用控制或单位的应用控制策略拦截：" +
-                   "可在 Windows 安全中心 › 应用和浏览器控制 › 智能应用控制中查看；单位电脑请联系管理员放行 Atrium 所在目录。（$($_.Exception.Message.Trim())）")
+            throw ("Windows åº”ç”¨ç¨‹åºæŽ§åˆ¶é˜»æ­¢äº†æ–°ç‰ˆ $Kind è¿è¡Œï¼Œå·²ä¿ç•™æ—§ç‰ˆæœ¬ã€‚æ–°ç‰ˆæ–‡ä»¶æ²¡æœ‰ä»£ç ç­¾åï¼Œå¯èƒ½è¢«æ™ºèƒ½åº”ç”¨æŽ§åˆ¶æˆ–å•ä½çš„åº”ç”¨æŽ§åˆ¶ç­–ç•¥æ‹¦æˆªï¼š" +
+                   "å¯åœ¨ Windows å®‰å…¨ä¸­å¿ƒ â€º åº”ç”¨å’Œæµè§ˆå™¨æŽ§åˆ¶ â€º æ™ºèƒ½åº”ç”¨æŽ§åˆ¶ä¸­æŸ¥çœ‹ï¼›å•ä½ç”µè„‘è¯·è”ç³»ç®¡ç†å‘˜æ”¾è¡Œ Atrium æ‰€åœ¨ç›®å½•ã€‚ï¼ˆ$($_.Exception.Message.Trim())ï¼‰")
         }
         $started.Add($process)
         $until = [DateTime]::UtcNow.AddSeconds($StartupTimeoutSeconds)
         do {
             if ($process.HasExited) {
                 $cause = if ($Kind -eq 'Settings') { Get-CrashCause $startedAt } else { '' }
-                throw ("$Kind 启动失败（退出码 0x{0:X8}）{1}。" -f $process.ExitCode, $cause)
+                throw ("$Kind å¯åŠ¨å¤±è´¥ï¼ˆé€€å‡ºç  0x{0:X8}ï¼‰{1}ã€‚" -f $process.ExitCode, $cause)
             }
             if ($ready.WaitOne(100)) {
-                if ($process.HasExited) { throw "$Kind 在就绪后退出。" }
+                if ($process.HasExited) { throw "$Kind åœ¨å°±ç»ªåŽé€€å‡ºã€‚" }
                 return
             }
         } while ([DateTime]::UtcNow -lt $until)
-        throw "$Kind 未确认启动就绪，已保留旧版本。"
+        throw "$Kind æœªç¡®è®¤å¯åŠ¨å°±ç»ªï¼Œå·²ä¿ç•™æ—§ç‰ˆæœ¬ã€‚"
     } finally { $ready.Dispose() }
 }
 
@@ -129,12 +129,12 @@ function Write-Result([string]$ErrorText) {
 
 try {
     if (!$parent -or !$name -or $install -eq [IO.Path]::GetPathRoot($install).TrimEnd('\') -or
-        !$package.StartsWith($cache + '\', [StringComparison]::OrdinalIgnoreCase)) { throw '更新目录无效。' }
+        !$package.StartsWith($cache + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'æ›´æ–°ç›®å½•æ— æ•ˆã€‚' }
     Assert-TemporaryPath $incoming
     Assert-TemporaryPath $backup
     foreach ($root in @($install, $package)) {
-        if (!(Test-Path -LiteralPath (Join-Path $root 'Atrium.exe')) -or
-            !(Test-Path -LiteralPath (Join-Path $root 'Settings\Atrium.Settings.exe'))) { throw '找不到完整的 Atrium 程序文件。' }
+        if (!(Test-Path -LiteralPath (Join-Path $root 'WINMAK.exe')) -or
+            !(Test-Path -LiteralPath (Join-Path $root 'Settings\Atrium.Settings.exe'))) { throw 'æ‰¾ä¸åˆ°å®Œæ•´çš„ Atrium ç¨‹åºæ–‡ä»¶ã€‚' }
     }
     # Copy before stopping the app; disk/access failures leave the old app running.
     New-Item -ItemType Directory -Path $incoming | Out-Null
@@ -144,10 +144,10 @@ try {
         Copy-Item -LiteralPath (Join-Path $install 'development.txt') -Destination $incoming -Force
     }
     $settingsProcess = Get-Process -Id $WaitForProcessId -ErrorAction SilentlyContinue
-    if ($settingsProcess -and !$settingsProcess.WaitForExit(30000)) { throw '设置中心尚未退出，更新未安装。' }
-    $quit = Start-Process -FilePath (Join-Path $install 'Atrium.exe') -ArgumentList '--exit' -WindowStyle Hidden -PassThru
+    if ($settingsProcess -and !$settingsProcess.WaitForExit(30000)) { throw 'è®¾ç½®ä¸­å¿ƒå°šæœªé€€å‡ºï¼Œæ›´æ–°æœªå®‰è£…ã€‚' }
+    $quit = Start-Process -FilePath (Join-Path $install 'WINMAK.exe') -ArgumentList '--exit' -WindowStyle Hidden -PassThru
     try {
-        if (!$quit.WaitForExit(15000) -or $quit.ExitCode -ne 0) { throw 'Atrium 尚未正常退出，更新未安装。' }
+        if (!$quit.WaitForExit(15000) -or $quit.ExitCode -ne 0) { throw 'Atrium å°šæœªæ­£å¸¸é€€å‡ºï¼Œæ›´æ–°æœªå®‰è£…ã€‚' }
     } finally { $quit.Dispose() }
     $coreStopped = $true
     Assert-TemporaryPath $backup
@@ -167,11 +167,11 @@ try {
         throw
     }
     $swapped = $true
-    if ($StartCore -eq '1') { Start-Verified (Join-Path $install 'Atrium.exe') 'Core' '' }
+    if ($StartCore -eq '1') { Start-Verified (Join-Path $install 'WINMAK.exe') 'Core' '' }
     $settingsArguments = if ($StartCore -eq '1') { '--page about --require-core-ready' } else { '--page about' }
     Start-Verified (Join-Path $install 'Settings\Atrium.Settings.exe') 'Settings' $settingsArguments
     foreach ($process in $started) {
-        if ($process.HasExited) { throw '新版程序在启动确认期间退出。' }
+        if ($process.HasExited) { throw 'æ–°ç‰ˆç¨‹åºåœ¨å¯åŠ¨ç¡®è®¤æœŸé—´é€€å‡ºã€‚' }
     }
     # With the core intentionally off, only settings is launched and verified.
     $confirmed = $true
@@ -187,7 +187,7 @@ try {
             Assert-TemporaryPath $backup
             Move-Tree $backup $install
             $restored = $true
-        } catch { $failure += " 恢复旧包未完成：$($_.Exception.Message)；恢复副本保留在 $backup。" }
+        } catch { $failure += " æ¢å¤æ—§åŒ…æœªå®Œæˆï¼š$($_.Exception.Message)ï¼›æ¢å¤å‰¯æœ¬ä¿ç•™åœ¨ $backupã€‚" }
     }
     Write-Result $failure
 } finally {
@@ -202,7 +202,7 @@ try {
     }
     if (!$confirmed -and (!$swapped -or $restored)) {
         if ($coreStopped -and $StartCore -eq '1') {
-            Start-Process -FilePath (Join-Path $install 'Atrium.exe') -WorkingDirectory $workingDirectory -WindowStyle Hidden
+            Start-Process -FilePath (Join-Path $install 'WINMAK.exe') -WorkingDirectory $workingDirectory -WindowStyle Hidden
         }
         Start-Process -FilePath (Join-Path $install 'Settings\Atrium.Settings.exe') -ArgumentList '--page about' -WorkingDirectory $workingDirectory -WindowStyle Hidden
     }

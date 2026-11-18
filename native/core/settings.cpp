@@ -1,4 +1,4 @@
-#include "settings.h"
+﻿#include "settings.h"
 
 #include "localization.h"
 #include "log.h"
@@ -491,7 +491,7 @@ bool SaveSettings(const Settings& s, std::wstring* warning, std::wstring* error)
             *error = TrFormat(L"Could not write %s: %s (error %lu)", path.c_str(), reason.c_str(), code);
             // Below medium integrity (an executable carrying a Low label) nothing in the profile is writable.
             if (LowIntegrity())
-                *error += Tr(L"\nAtrium is running at low integrity and cannot write to your profile. Unzip it to an ordinary folder (such as D:\\\\Atrium), make sure Atrium.exe has no Low integrity label, then start it again.");
+                *error += Tr(L"\nWINMAK is running at low integrity and cannot write to your profile. Unzip it to an ordinary folder (such as D:\\\\Atrium), make sure WINMAK.exe has no Low integrity label, then start it again.");
         }
         return false;
     }

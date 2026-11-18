@@ -20,7 +20,7 @@ internal sealed record ReleaseInfo(Version Version, string Tag, Uri Page, Uri? D
 
     public static async Task<ReleaseInfo?> FetchLatestAsync(CancellationToken cancel)
     {
-        using var response = await Http.GetAsync("https://api.github.com/repos/wynter-yaxley/atrium-desktop/releases/latest", cancel);
+        using var response = await Http.GetAsync("https://api.github.com/repos/umarsandifajar/WINMAK-Desktop/releases/latest", cancel);
         if (response.StatusCode == HttpStatusCode.NotFound) return null;
         response.EnsureSuccessStatusCode();
         using var stream = await response.Content.ReadAsStreamAsync(cancel);
