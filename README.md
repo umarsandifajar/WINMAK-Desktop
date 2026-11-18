@@ -1,3 +1,8 @@
+<img width="1919" height="1079" alt="Screenshot 2026-11-18 213458" src="https://github.com/user-attachments/assets/cb8aa17d-6210-4c1a-b506-486d8900abf5" />
+
+<img width="1435" height="1028" alt="Screenshot 2026-11-18 220023" src="https://github.com/user-attachments/assets/478cd26a-2f28-4501-ae68-565a543017a6" />
+
+
 # WINMAK Desktop
 
 **A Native glass desktop for Windows 11: a floating taskbar and desktop widgets with real-time refraction.**
