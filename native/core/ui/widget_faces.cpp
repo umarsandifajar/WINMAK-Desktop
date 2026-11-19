@@ -110,28 +110,43 @@ SYSTEMTIME CityTime(const std::wstring& name, const SYSTEMTIME& now, std::wstrin
 
 const std::vector<WorldCity>& WorldCities()
 {
-    static const std::vector<WorldCity> cities = {
-        {L"北京", L"China Standard Time"},          {L"上海", L"China Standard Time"},        {L"香港", L"China Standard Time"},
-        {L"台北", L"Taipei Standard Time"},         {L"东京", L"Tokyo Standard Time"},        {L"首尔", L"Korea Standard Time"},
-        {L"新加坡", L"Singapore Standard Time"},    {L"曼谷", L"SE Asia Standard Time"},      {L"新德里", L"India Standard Time"},
-        {L"迪拜", L"Arabian Standard Time"},        {L"莫斯科", L"Russian Standard Time"},    {L"伊斯坦布尔", L"Turkey Standard Time"},
-        {L"开罗", L"Egypt Standard Time"},          {L"约翰内斯堡", L"South Africa Standard Time"}, {L"柏林", L"W. Europe Standard Time"},
-        {L"巴黎", L"Romance Standard Time"},        {L"伦敦", L"GMT Standard Time"},          {L"圣保罗", L"E. South America Standard Time"},
-        {L"纽约", L"Eastern Standard Time"},        {L"多伦多", L"Eastern Standard Time"},    {L"芝加哥", L"Central Standard Time"},
-        {L"丹佛", L"Mountain Standard Time"},       {L"洛杉矶", L"Pacific Standard Time"},    {L"温哥华", L"Pacific Standard Time"},
-        {L"安克雷奇", L"Alaskan Standard Time"},    {L"檀香山", L"Hawaiian Standard Time"},   {L"悉尼", L"AUS Eastern Standard Time"},
-        {L"墨尔本", L"AUS Eastern Standard Time"},  {L"奥克兰", L"New Zealand Standard Time"},
+    const bool zh = (LanguageTag() == L"zh-Hans");
+    static const std::vector<WorldCity> zhCities = {
+        {L"\u5317\u4EAC", L"China Standard Time"},          {L"\u4E0A\u6D77", L"China Standard Time"},        {L"\u9999\u6E2F", L"China Standard Time"},
+        {L"\u53F0\u5317", L"Taipei Standard Time"},         {L"\u4E1C\u4EAC", L"Tokyo Standard Time"},        {L"\u9996\u5C14", L"Korea Standard Time"},
+        {L"\u65B0\u52A0\u5761", L"Singapore Standard Time"},    {L"\u66FC\u8C37", L"SE Asia Standard Time"},      {L"\u96C5\u52A0\u8FBE", L"SE Asia Standard Time"},
+        {L"\u65B0\u5FB7\u91CC", L"India Standard Time"},        {L"\u8FEA\u62DC", L"Arabian Standard Time"},      {L"\u83AB\u65AF\u79D1", L"Russian Standard Time"},
+        {L"\u4F0A\u65AF\u5766\u5E03\u5C14", L"Turkey Standard Time"}, {L"\u5F00\u7F57", L"Egypt Standard Time"},   {L"\u7EA6\u7FF0\u5185\u65AF\u5821", L"South Africa Standard Time"},
+        {L"\u67CF\u6797", L"W. Europe Standard Time"},        {L"\u5DF4\u9ECE", L"Romance Standard Time"},      {L"\u4F26\u6566", L"GMT Standard Time"},
+        {L"\u5723\u4FDD\u7F57", L"E. South America Standard Time"}, {L"\u7EBD\u7EA6", L"Eastern Standard Time"}, {L"\u591A\u4F26\u591A", L"Eastern Standard Time"},
+        {L"\u829D\u52A0\u54E5", L"Central Standard Time"},      {L"\u4E39\u4F5B", L"Mountain Standard Time"},     {L"\u6D1B\u6749\u77F6", L"Pacific Standard Time"},
+        {L"\u6E29\u54E5\u534E", L"Pacific Standard Time"},      {L"\u5B89\u514B\u96F7\u5947", L"Alaskan Standard Time"}, {L"\u6A80\u9999\u5C71", L"Hawaiian Standard Time"},
+        {L"\u6089\u5C3C", L"AUS Eastern Standard Time"},    {L"\u58A8\u5C14\u672C", L"AUS Eastern Standard Time"}, {L"\u5965\u514B\u5170", L"New Zealand Standard Time"},
     };
-    return cities;
+    static const std::vector<WorldCity> latinCities = {
+        {L"Beijing", L"China Standard Time"},            {L"Shanghai", L"China Standard Time"},          {L"Hong Kong", L"China Standard Time"},
+        {L"Taipei", L"Taipei Standard Time"},           {L"Tokyo", L"Tokyo Standard Time"},             {L"Seoul", L"Korea Standard Time"},
+        {L"Singapore", L"Singapore Standard Time"},     {L"Bangkok", L"SE Asia Standard Time"},        {L"Jakarta", L"SE Asia Standard Time"},
+        {L"New Delhi", L"India Standard Time"},         {L"Dubai", L"Arabian Standard Time"},         {L"Moscow", L"Russian Standard Time"},
+        {L"Istanbul", L"Turkey Standard Time"},         {L"Cairo", L"Egypt Standard Time"},             {L"Johannesburg", L"South Africa Standard Time"},
+        {L"Berlin", L"W. Europe Standard Time"},        {L"Paris", L"Romance Standard Time"},         {L"London", L"GMT Standard Time"},
+        {L"Sao Paulo", L"E. South America Standard Time"}, {L"New York", L"Eastern Standard Time"},     {L"Toronto", L"Eastern Standard Time"},
+        {L"Chicago", L"Central Standard Time"},         {L"Denver", L"Mountain Standard Time"},       {L"Los Angeles", L"Pacific Standard Time"},
+        {L"Vancouver", L"Pacific Standard Time"},       {L"Anchorage", L"Alaskan Standard Time"},     {L"Honolulu", L"Hawaiian Standard Time"},
+        {L"Sydney", L"AUS Eastern Standard Time"},      {L"Melbourne", L"AUS Eastern Standard Time"},   {L"Auckland", L"New Zealand Standard Time"},
+    };
+    return zh ? zhCities : latinCities;
 }
 
 bool HasWorldClocks(WidgetKind kind, WidgetSize size) { return size != WidgetSize::Small && (kind == WidgetKind::Clock || kind == WidgetKind::Digital); }
 
 std::vector<std::wstring> WidgetCities(WidgetKind kind, const std::vector<std::wstring>& chosen)
 {
+    const bool zh = (LanguageTag() == L"zh-Hans");
     // macOS's medium Clock shows four cities; the digital one lists three beside the local time.
-    std::vector<std::wstring> cities = kind == WidgetKind::Digital ? std::vector<std::wstring>{L"东京", L"伦敦", L"纽约"}
-                                                                  : std::vector<std::wstring>{L"北京", L"东京", L"伦敦", L"纽约"};
+    std::vector<std::wstring> cities = kind == WidgetKind::Digital
+        ? (zh ? std::vector<std::wstring>{L"\u4E1C\u4EAC", L"\u4F26\u6566", L"\u7EBD\u7EA6"} : std::vector<std::wstring>{L"Tokyo", L"London", L"New York"})
+        : (zh ? std::vector<std::wstring>{L"\u5317\u4EAC", L"\u4E1C\u4EAC", L"\u4F26\u6566", L"\u7EBD\u7EA6"} : std::vector<std::wstring>{L"Beijing", L"Tokyo", L"London", L"New York"});
     for (size_t i = 0; i < cities.size() && i < chosen.size(); ++i)
         if (std::any_of(WorldCities().begin(), WorldCities().end(), [&](const WorldCity& c) { return chosen[i] == c.name; }))
             cities[i] = chosen[i];
@@ -231,9 +246,9 @@ void PaintDigital(Canvas& c, WidgetSize size, const WidgetContent& content, cons
     const float timeSize = fit > timeW ? 50 * timeW / fit : 50.f;
     c.Text(HourMinute(w.now), D2D1::RectF(kPad, kPad + 22, kPad + leftW, kPad + 84), timeSize, p.text, DWRITE_FONT_WEIGHT_SEMI_BOLD, 1);
     c.Text(WeekLong(wd), D2D1::RectF(kPad + 2, H - kPad - 40, kPad + leftW, H - kPad - 20), 13, p.blue, DWRITE_FONT_WEIGHT_SEMI_BOLD);
-    const std::wstring dateText = LanguageIsEnglish()
-                                      ? std::wstring(kMonthsEn[std::clamp(int(w.now.wMonth), 1, 12) - 1]) + L" " + std::to_wstring(w.now.wDay)
-                                      : std::to_wstring(w.now.wMonth) + L"月" + std::to_wstring(w.now.wDay) + L"日";
+    const std::wstring dateText = (LanguageTag() == L"zh-Hans")
+                                      ? (std::to_wstring(w.now.wMonth) + L"\u6708" + std::to_wstring(w.now.wDay) + L"\u65E5")
+                                      : (std::wstring(kMonthsEn[std::clamp(int(w.now.wMonth), 1, 12) - 1]) + L" " + std::to_wstring(w.now.wDay));
     c.Text(dateText, D2D1::RectF(kPad + 2, H - kPad - 20, kPad + leftW, H - kPad), 13,
            p.text, DWRITE_FONT_WEIGHT_NORMAL);
     if (size == WidgetSize::Small)

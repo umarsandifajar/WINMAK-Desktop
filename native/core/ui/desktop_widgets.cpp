@@ -105,7 +105,7 @@ bool IsDesktopWindow(HWND h)
     return c == L"Progman" || c == L"WorkerW";
 }
 
-// The first city of the local time zone's name: "(UTC+08:00) 北京，重庆，…" -> "北京".
+// The first city of the local time zone's name: "(UTC+08:00) 北京，重庆，..." -> "北京".
 std::wstring LocalCity()
 {
     DYNAMIC_TIME_ZONE_INFORMATION tz{};
@@ -1521,12 +1521,12 @@ void DesktopWidgets::Menu(Widget& w)
     size(kLarge, WidgetSize::Large, Tr(L"Large"));
     entries.push_back({});
     if (w.kind == WidgetKind::Photos) {
-        entries.push_back({Tr(L"Choose a photo folder…"), kFolder});
+        entries.push_back({Tr(L"Choose a photo folder..."), kFolder});
         entries.push_back({Tr(L"Next photo"), kNextPhoto});
         entries.push_back({});
     }
     if (HasWorldClocks(w.kind, w.size)) {
-        entries.push_back({Tr(L"Choose city…"), kCities});
+        entries.push_back({Tr(L"Choose city..."), kCities});
         entries.push_back({});
     }
     if (w.kind == WidgetKind::Reminders) {
@@ -1535,7 +1535,7 @@ void DesktopWidgets::Menu(Widget& w)
         entries.push_back({});
     }
     entries.push_back({Tr(L"Remove widget"), kRemove});
-    entries.push_back({Tr(L"Add Widgets…"), kAdd});
+    entries.push_back({Tr(L"Add Widgets..."), kAdd});
     POINT p;
     GetCursorPos(&p);
     Widget* target = &w;
