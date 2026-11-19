@@ -11,6 +11,11 @@ WINMAK Desktop is a customized build and widget expansion based on the original 
 
 ---
 
+## What's New in v2.9.0
+
+- **Bahasa Indonesia Localization:** Added full Bahasa Indonesia (id) support across the WinUI 3 settings interface and desktop widgets, with dynamic world clock labels that adapt to the active language.
+- **Encoding & Text Cleanup:** Fixed broken UTF-8/mojibake characters across source, XAML, and locale files (including Find games...) and standardized files to UTF-8 without BOM.
+- **Stabilization & Installer:** Removed duplicate symbol definitions in widget_faces.cpp, kept English (en) as the default language, and updated Inno Setup packaging to 2.9.0.
 ## ✨ What's New in v2.8.0 (Modification-widget)
 
 - **🕌 Prayer Times Widget (Jadwal Sholat):** Real-time daily prayer schedule (Subuh, Dzuhur, Ashar, Maghrib, Isya) with live countdown and progress indicator.
