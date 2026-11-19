@@ -1,5 +1,5 @@
-﻿#define MyAppName "WINMAK Desktop"
-#define MyAppVersion "2.8.0"
+#define MyAppName "WINMAK Desktop"
+#define MyAppVersion "2.9.0"
 #define MyAppPublisher "Umar Sandi Fajar"
 #define MyAppURL "https://github.com/umarsandifajar/WINMAK-Desktop"
 #define MyAppExeName "WINMAK.exe"

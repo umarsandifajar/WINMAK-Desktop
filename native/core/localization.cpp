@@ -175,10 +175,12 @@ std::wstring NormalizeTag(std::wstring tag)
 {
     for (auto& ch : tag) if (ch >= L'A' && ch <= L'Z') ch += L'a' - L'A';
     if (tag.empty() || tag == L"auto")
-        return SystemPrefersChinese() ? L"zh-Hans" : L"en";
+        return L"en";
     if (!localization::ValidTag(tag)) return L"en";
     if (tag == L"zh" || tag == L"zh-hans")
         return L"zh-Hans";
+    if (tag == L"id" || tag == L"id-id" || tag == L"ind")
+        return L"id";
     return tag;
 }
 

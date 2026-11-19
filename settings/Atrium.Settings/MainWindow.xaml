@@ -236,7 +236,7 @@
                                 <TextBlock x:Name="PinCount" Style="{StaticResource FootnoteStyle}" VerticalAlignment="Center" Margin="0,0,6,0"
                                            Typography.NumeralAlignment="Tabular" />
                                 <Button x:Name="ImportPinsButton" Content="Import Windows taskbar pins" Click="OnImportPins" />
-                                <Button x:Name="AddPinButton" Content="Add appâ€¦" Click="OnAddPin" Style="{StaticResource PrimaryButtonStyle}" />
+                                <Button x:Name="AddPinButton" Content="Add app..." Click="OnAddPin" Style="{StaticResource PrimaryButtonStyle}" />
                             </StackPanel>
                         </Grid>
                         <Border Style="{StaticResource GroupStyle}">
@@ -288,7 +288,7 @@
                                 </ListView>
                                 <StackPanel x:Name="PinsEmpty" Visibility="Collapsed" Padding="24,36,24,36" Spacing="6" HorizontalAlignment="Center">
                                     <TextBlock Text="Nothing is pinned yet" Style="{StaticResource TitleStyle}" HorizontalAlignment="Center" />
-                                    <TextBlock Text="Choose a program with Add appâ€¦, or import the apps pinned to the Windows taskbar."
+                                    <TextBlock Text="Choose a program with Add app..., or import the apps pinned to the Windows taskbar."
                                                Style="{StaticResource RowNoteStyle}" TextAlignment="Center" MaxWidth="360" />
                                 </StackPanel>
                             </Grid>
@@ -455,9 +455,9 @@
                                 <TextBlock Text="Excluded from Stage Manager" Style="{StaticResource SectionStyle}" Margin="4,0,0,0" VerticalAlignment="Center" />
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                                     <Button x:Name="ExcludedDefaultsButton" Content="Restore defaults" Click="OnStageExcludedDefaults" />
-                                    <Button Content="Find gamesâ€¦" Click="OnFindGames"
+                                    <Button Content="Find games..." Click="OnFindGames"
                                             ToolTipService.ToolTip="Lists the games installed with Steam, Epic or seen by the Xbox Game Bar; the ones you choose are never put away." />
-                                    <Button Content="Add appâ€¦" Click="OnAddExcluded" Style="{StaticResource PrimaryButtonStyle}"
+                                    <Button Content="Add app..." Click="OnAddExcluded" Style="{StaticResource PrimaryButtonStyle}"
                                             ToolTipService.ToolTip="Their windows are never put away by Stage Manager: screenshot and recording tools whose controls must stay on screen." />
                                 </StackPanel>
                             </Grid>

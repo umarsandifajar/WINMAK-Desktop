@@ -129,10 +129,12 @@ internal static class Loc
     private static string NormalizeTag(string? setting)
     {
         if (string.IsNullOrWhiteSpace(setting) || setting.Equals("auto", StringComparison.OrdinalIgnoreCase))
-            return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "zh" ? "zh-Hans" : "en";
+            return "en";
         if (!LocalizationValidation.ValidTag(setting)) return "en";
         string tag = setting.ToLowerInvariant();
-        return tag is "zh" or "zh-hans" ? "zh-Hans" : tag;
+        if (tag is "zh" or "zh-hans") return "zh-Hans";
+        if (tag is "id" or "id-id" or "ind") return "id";
+        return tag;
     }
 
     private static string LocaleDir()

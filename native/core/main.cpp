@@ -1,4 +1,4 @@
-﻿// Atrium: the resident process. Owns the glass bar, its popups, the desktop
+// Atrium: the resident process. Owns the glass bar, its popups, the desktop
 // widgets, the tray icon and the settings pipe. Explorer's taskbar stays
 // unless the user hides it (setting hideTaskbar, shell/system_chrome.h; D37).
 
@@ -362,9 +362,9 @@ void SetStageManager(bool on)
 
 void ShowMenu(POINT pt)
 {
-    std::vector<MenuEntry> entries = {{Tr(L"Appearance SettingsÃ¢â‚¬Â¦"), kCmdSettings}, {}, {Tr(L"Show Desktop"), kCmdDesktop}, {Tr(L"Task Manager"), kCmdTaskManager}};
+    std::vector<MenuEntry> entries = {{Tr(L"Appearance Settings..."), kCmdSettings}, {}, {Tr(L"Show Desktop"), kCmdDesktop}, {Tr(L"Task Manager"), kCmdTaskManager}};
     if (g_app.widgetsOn)
-        entries.push_back({Tr(L"Add WidgetsÃ¢â‚¬Â¦"), kCmdWidgets});
+        entries.push_back({Tr(L"Add Widgets..."), kCmdWidgets});
     // The three modules, each on its own.
     entries.push_back({});
     entries.push_back({Tr(L"Taskbar"), kCmdToggle, g_app.barOn.value_or(true)});
@@ -478,7 +478,7 @@ bool RunNoticeAction(const Notice& n)
     return true; // nothing to run: the click just dismisses it
 }
 
-// The chat apps' own switches (Settings Ã¢\u2013Â¸ Notifications Ã¢\u2013Â¸ Sources); other apps' Windows
+// The chat apps' own switches (Settings ...\u2013Â¸ Notifications ...\u2013Â¸ Sources); other apps' Windows
 // notifications follow notifyListener.
 bool MessengerOn(Messenger m)
 {
@@ -924,7 +924,7 @@ void ShowItemMenu(const std::wstring& key, POINT pt)
             break;
         case kCmdTerminate: {
             // Ending the processes loses what is not saved: asked once more, in place.
-            std::vector<MenuEntry> confirm = {{TrFormat(L"Force close Ã¢â‚¬Å“%sÃ¢â‚¬Â? Unsaved content will be lost", name.c_str()), 0, false, false, true},
+            std::vector<MenuEntry> confirm = {{TrFormat(L"Force close ...â‚¬Å“%s...â‚¬Â? Unsaved content will be lost", name.c_str()), 0, false, false, true},
                                               {L"", 0},
                                               {Tr(L"Force close"), kCmdTerminateConfirm},
                                               {Tr(L"Cancel"), 0}};
