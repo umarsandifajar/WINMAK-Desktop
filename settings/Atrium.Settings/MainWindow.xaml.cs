@@ -179,7 +179,7 @@ public sealed partial class MainWindow : Window
         StartupSwitch.IsEnabled = !CoreClient.Development;
         if (CoreClient.Development) ToolTipService.SetToolTip(StartupSwitch, Loc.T("Development builds do not change Windows startup."));
         var v = typeof(MainWindow).Assembly.GetName().Version;
-        VersionText.Text = "Version 2.8.0";
+        VersionText.Text = "Version 2.9.0";
         ShowStatus(false);
         // `--page widgets` (the widgets' menu): open on that page.
         var args = Environment.GetCommandLineArgs();
