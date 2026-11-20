@@ -13,9 +13,11 @@ WINMAK Desktop is a customized build and widget expansion based on the original 
 
 ## What's New in v2.9.0
 
-- **Bahasa Indonesia Localization:** Added full Bahasa Indonesia (id) support across the WinUI 3 settings interface and desktop widgets, with dynamic world clock labels that adapt to the active language.
-- **Encoding & Text Cleanup:** Fixed broken UTF-8/mojibake characters across source, XAML, and locale files (including Find games...) and standardized files to UTF-8 without BOM.
-- **Stabilization & Installer:** Removed duplicate symbol definitions in widget_faces.cpp, kept English (en) as the default language, and updated Inno Setup packaging to 2.9.0.
+- **Version Alignment**: Synced application UI text, Atrium.Settings assembly version, and installer version to 2.9.0 so the **About** page and update checks report 2.9.0 consistently.
+- **Localization & Tests**: Fixed UTF-8 (no BOM) encoding, synced missing localization keys, and kept localization checks (check-localization.ps1 and localization_tests.exe) passing.
+- **Build & Packaging**: Updated build and packaging steps for portable (dist/WINMAK) and installer releases.
+- **Localization Scope**: Removed/excluded the Indonesian (id) language addition from this release.
+
 ## ✨ What's New in v2.8.0 (Modification-widget)
 
 - **🕌 Prayer Times Widget (Jadwal Sholat):** Real-time daily prayer schedule (Subuh, Dzuhur, Ashar, Maghrib, Isya) with live countdown and progress indicator.
@@ -56,3 +58,6 @@ git clone [https://github.com/umarsandifajar/WINMAK-Desktop.git](https://github.
 cd WINMAK-Desktop
 ./tools/build.ps1
 
+## Release v2.9.0
+
+WINMAK Desktop **v2.9.0** aligns the application version, Atrium.Settings assembly, and installer to 2.9.0, fixes localization encoding and key validation, and updates packaging for the release (excluding the Indonesian id language addition). See [CHANGELOG.md](CHANGELOG.md) for details.
